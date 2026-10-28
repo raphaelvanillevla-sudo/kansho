@@ -1628,8 +1628,9 @@ function viewWatched(p) {
     title: (a, b) => title(a).localeCompare(title(b)), year: (a, b) => (b.year || 0) - (a.year || 0), mal: (a, b) => (b.score || 0) - (a.score || 0) };
   list.sort(sorts[sort] || sorts.recent);
   V.innerHTML = `<div class="phead"><div><h1 class="pt">Anime</h1><p class="lede">${list.length} watched.</p></div>
-    <div class="tools">${sortSelect([['recent', 'Recently watched'], ['rating', 'Your rating'], ['title', 'Title'], ['year', 'Release year'], ['mal', 'MAL score']], sort, '#/watched')}</div></div>
+    <div class="tools">${list.length ? spotBtn() : ''}${sortSelect([['recent', 'Recently watched'], ['rating', 'Your rating'], ['title', 'Title'], ['year', 'Release year'], ['mal', 'MAL score']], sort, '#/watched')}</div></div>
     ${list.length ? `<div class="grid lg">${list.map(a => posterCard(a, { badges: false })).join('')}</div>` : '<div class="empty">Nothing marked as watched yet. Hit the eye on any anime.</div>'}`;
+  const sb = document.getElementById('pgSpot'); if (sb) sb.onclick = () => spotList(`Your anime · ${list.length}`, list.map(a => a.id), myNote, { noSkip: true });
 }
 
 function viewWatchlist(p) {
@@ -1645,8 +1646,9 @@ function viewWatchlist(p) {
     : sort === 'prio' ? [3, 2, 1].filter(p => items.some(x => x.p === p)).map(p => `<section class="sec"><div class="sech"><h2>${prioPill(0, p, false)} <span class="pcount">${items.filter(x => x.p === p).length}</span></h2></div><div class="grid lg">${items.filter(x => x.p === p).map(card).join('')}</div></section>`).join('')
     : `<div class="grid lg">${items.map(card).join('')}</div>`;
   V.innerHTML = `<div class="phead"><div><h1 class="pt">Watchlist</h1><p class="lede">${items.length} anime you want to see${items.length ? ` — ${counts[0]} must watch, ${counts[1]} soon, ${counts[2]} someday` : ''}. Click a priority tag to change it.</p></div>
-    <div class="tools">${items.length > 1 ? `<button class="btn" id="pick" title="Higher priority = more likely">${ic('dice')} Pick one for me</button>` : ''}
+    <div class="tools">${items.length ? spotBtn() : ''}${items.length > 1 ? `<button class="btn" id="pick" title="Higher priority = more likely">${ic('dice')} Pick one for me</button>` : ''}
     ${sortSelect([['prio', 'Priority'], ['added', 'Recently added'], ['oldest', 'Oldest first'], ['title', 'Title'], ['year', 'Release year'], ['mal', 'MAL score']], sort, '#/watchlist')}</div></div>${body}`;
+  const sb = document.getElementById('pgSpot'); if (sb) sb.onclick = () => spotList(`Watchlist · ${items.length}`, items.map(x => x.id), myNote, { noSkip: true });
   const pk = document.getElementById('pick');
   if (pk) pk.onclick = () => {   // weighted: must watch ×4, soon ×2, someday ×1
     const bag = items.flatMap(x => Array(x.p === 3 ? 4 : x.p === 2 ? 2 : 1).fill(x)), x = bag[Math.floor(Math.random() * bag.length)];
@@ -1656,7 +1658,7 @@ function viewWatchlist(p) {
 function viewWatching() {
   setTitle('Watching');
   const d = D(), items = [...d.watching].sort((x, y) => (y.updated || 0) - (x.updated || 0)).map(w => ({ w, a: d.anime[w.id] || getA(w.id) || { id: w.id } }));
-  V.innerHTML = `<div class="phead"><div><h1 class="pt">Watching</h1><p class="lede">${items.length ? `${items.length} anime you’ve started and not finished. Tap + after each episode.` : 'Anime you’ve started but haven’t finished.'}</p></div></div>
+  V.innerHTML = `<div class="phead"><div><h1 class="pt">Watching</h1><p class="lede">${items.length ? `${items.length} anime you’ve started and not finished. Tap + after each episode.` : 'Anime you’ve started but haven’t finished.'}</p></div>${items.length ? `<div class="tools">${spotBtn()}</div>` : ''}</div>
     ${items.length ? `<div class="wlist">${items.map(({ w, a }) => `<div class="wrow" data-wid="${a.id}">
       <div class="wpost">${posterCard(a, { meta: false, badges: false })}</div>
       <div class="wmid"><h3><a href="#/anime/${a.id}">${esc(title(a))}</a>${a.year ? `<span>${a.year}</span>` : ''}</h3>
@@ -1670,6 +1672,7 @@ function viewWatching() {
     row.querySelector('[data-wfin]').onclick = () => openLog(a);
     row.querySelector('[data-wstop]').onclick = () => confirmBox(`Stop watching ${esc(title(a))}? It just leaves this list.`, 'Remove', () => { stopWatching(id); viewWatching(); });
   });
+  const sb = document.getElementById('pgSpot'); if (sb) sb.onclick = () => spotList(`Watching · ${items.length}`, items.map(x => x.a.id), myNote, { noSkip: true });
   refreshFn = viewWatching;
 }
 
@@ -1687,13 +1690,14 @@ function viewList(id) {
   if (!l) { V.innerHTML = '<div class="empty">That list doesn’t exist anymore. <a href="#/lists" style="color:var(--amber)">Back to lists</a></div>'; return; }
   setTitle(l.name);
   V.innerHTML = `<div class="phead"><div><h1 class="pt">${esc(l.name)}</h1><p class="lede">${l.items.length} anime${l.ranked ? ' · ranked' : ''}</p></div>
-    <div class="tools"><button class="btn pri" id="la">${ic('plus')} Add anime</button><button class="btn" id="le">${ic('edit')} Edit</button><button class="btn danger" id="ldl">${ic('trash')}</button></div></div>
+    <div class="tools">${l.items.length ? spotBtn() : ''}<button class="btn pri" id="la">${ic('plus')} Add anime</button><button class="btn" id="le">${ic('edit')} Edit</button><button class="btn danger" id="ldl">${ic('trash')}</button></div></div>
     ${l.desc ? `<p class="ldesc">${esc(l.desc)}</p>` : ''}
     ${l.items.length ? `<div class="grid lg">${l.items.map((aid, i) => { const a = D().anime[aid] || { id: aid };
       return `<div class="pc">${l.ranked ? `<span class="rank">${i + 1}</span>` : ''}${posterCard(a, { caption: esc(title(a)) })}<button class="rm" data-rm="${aid}" title="Remove from list">${ICON.x}</button></div>`; }).join('')}</div>`
       : '<div class="empty">Empty list. Add anime here, or from any anime page with <b>Add to lists…</b></div>'}`;
   document.getElementById('la').onclick = () => openPicker(`Add to “${l.name}”`, a => { if (!l.items.includes(a.id)) l.items.push(a.id); l.updated = Date.now(); Store.save(); refresh(); });
   document.getElementById('le').onclick = () => openListEdit(l);
+  const sb = document.getElementById('pgSpot'); if (sb) sb.onclick = () => spotList(l.name, l.items, id => [l.ranked ? `#${l.items.indexOf(id) + 1} in ${esc(l.name)}` : '', myNote(id)].filter(Boolean).join(' · '), { noSkip: true });
   document.getElementById('ldl').onclick = () => confirmBox(`Delete the list “${esc(l.name)}”? The anime themselves stay in your diary.`, 'Delete list', () => {
     D().lists = D().lists.filter(x => x.id !== l.id); Store.save(); location.hash = '#/lists'; });
   V.querySelectorAll('[data-rm]').forEach(b => b.onclick = ev => { ev.preventDefault(); l.items = l.items.filter(x => x !== +b.dataset.rm); l.updated = Date.now(); Store.save(); refresh(); });
@@ -2305,7 +2309,7 @@ function openSpotlight(o = {}) {
     <div class="sbar"><span class="brand">Kanshō<b>.</b></span>
       <select class="sel" id="spSrc" title="What to browse"></select>
       <select class="sel" id="spType" title="Type">${SPOT_TYPES.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select>
-      <label class="check"><input type="checkbox" id="spSkip" ${cfg.skip ? 'checked' : ''}> Skip watched &amp; listed</label>
+      <label class="check" ${o.noSkip ? 'style="display:none"' : ''}><input type="checkbox" id="spSkip" ${cfg.skip ? 'checked' : ''}> Skip watched &amp; listed</label>
       <label class="check"><input type="checkbox" id="spAuto" ${cfg.auto ? 'checked' : ''}> Auto-advance</label>
       <span class="sp"></span><span class="cnt" id="spCnt"></span>
       <button class="iconbtn" id="spFs" title="Fullscreen (F)">${ic('expand')}</button>
@@ -2318,7 +2322,7 @@ function openSpotlight(o = {}) {
   srcSel.innerHTML = (fixedKind(o.kind) ? `<option value="${o.kind}">${esc(o.label || 'This anime')}</option>` : '') + SPOT_KINDS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   srcSel.value = SP.kind;
   const typeSel = el.querySelector('#spType'); typeSel.value = SP.type || ''; typeSel.disabled = fixedKind(SP.kind);
-  srcSel.onchange = () => { const k = srcSel.value; if (!fixedKind(k)) { cfg.kind = k; Store.save(); } typeSel.disabled = fixedKind(k); spReset(k, typeSel.value); };
+  srcSel.onchange = () => { const k = srcSel.value; if (!fixedKind(k)) { cfg.kind = k; Store.save(); SP.extra = {}; el.querySelector('#spSkip').closest('label').style.display = ''; } typeSel.disabled = fixedKind(k); spReset(k, typeSel.value); };
   typeSel.onchange = () => { cfg.type = typeSel.value; Store.save(); spReset(srcSel.value, typeSel.value); };
   el.querySelector('#spSkip').onchange = ev => { cfg.skip = ev.target.checked; Store.save(); spRefilter(); };
   el.querySelector('#spAuto').onchange = ev => { cfg.auto = ev.target.checked; Store.save(); };
@@ -2360,7 +2364,7 @@ function spReset(kind, type, items, startId) {
   if (!SP.list.length || SP.list.length - SP.i < 6) spMore();
 }
 function spRefilter(keepId) {
-  const cur = keepId ?? SP.list[SP.i]?.id, skip = spSettings().skip;
+  const cur = keepId ?? SP.list[SP.i]?.id, skip = spSettings().skip && !SP.extra?.noSkip;
   SP.list = SP.raw.filter(a => !skip || !isSeen(a) || a.id === cur);
   const k = SP.list.findIndex(a => a.id === cur); SP.i = k >= 0 ? k : 0;
   spRender();
@@ -2374,7 +2378,7 @@ async function spMore() {
       tries++;
       const batch = await me.src.next(); if (SP !== me) return;
       batch.forEach(remember); me.raw.push(...batch);
-      const skip = spSettings().skip, ok = batch.filter(a => !skip || !isSeen(a));
+      const skip = spSettings().skip && !me.extra?.noSkip, ok = batch.filter(a => !skip || !isSeen(a));
       me.list.push(...ok); added += ok.length;
     }
   } catch (e) { if (SP === me) me.err = e; }
@@ -2482,11 +2486,21 @@ function spEnrich(a) {
   }).catch(() => {});
 }
 // open any list of anime ids in Spotlight, in that order
-function spotList(label, ids, noteOf) {
+function spotList(label, ids, noteOf, opts = {}) {
   ids = [...new Set(ids.map(Number).filter(Boolean))]; if (!ids.length) return;
-  const items = ids.map(id => { const a = { ...(getA(id) || { id }) }; const n = noteOf?.(id); if (n) a.note = n; return a; });
-  openSpotlight({ kind: 'list', label, items, startId: ids[0] });
+  const items = ids.map(id => { const a = { ...(getA(id) || D().anime[id] || { id }) }; const n = noteOf?.(id); if (n) a.note = n; return a; });
+  openSpotlight({ kind: 'list', label, items, startId: ids[0], ...opts });
 }
+// your own library pages: notes describe where each title stands for you
+function myNote(id) {
+  const s = st(id), w = watchingOf(id), bits = [];
+  if (w) bits.push(`Watching · ${epText(w, getA(id))}`);
+  if (s.rating) bits.push('You ' + starText(s.rating)); else if (s.watched) bits.push('Watched');
+  if (s.liked) bits.push('♥');
+  if (inWL(id)) bits.push(PRIO[prioOf(id)][0]);
+  return bits.join(' · ');
+}
+const spotBtn = (id = 'pgSpot') => `<button class="btn" id="${id}" title="Browse these one by one, fullscreen">${ic('expand')} Spotlight</button>`;
 function spOpenDetails() { const a = SP?.list[SP.i]; if (!a || Date.now() - (SP.swiped || 0) < 400) return; closeSpotlight(true); location.hash = '#/anime/' + a.id; }
 document.addEventListener('keydown', ev => {
   if (!SP) return;
