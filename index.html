@@ -1054,7 +1054,7 @@ async function route(keep) {
       case 'list': viewList(parts[1]); break;
       case 'profile': viewProfile(parts[1]); break;
       case 'friends': viewFriends(); break;
-      case 'friend': viewFriend(parts[1]); break;
+      case 'friend': viewFriend(parts.slice(1).join('/')); break;   // friend codes are "user/gist"
       default: await viewHome();
     }
   } catch (e) { console.error(e); V.innerHTML = errBox(e); }
