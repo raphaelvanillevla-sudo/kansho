@@ -507,6 +507,10 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 .cap .pbar{margin:0 0 5px}
 .cap .ct,.cap .ce{display:block;overflow:hidden;text-overflow:ellipsis}
 .cap .ct{color:#cfd6de}
+.cap .cw{display:block;color:var(--dim);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.crow .sech h2 small,#mfySec .sech h2 small{font-size:12px;color:var(--dim);margin-left:10px;letter-spacing:0;text-transform:none;font-weight:500}
+#mfySec .sech{align-items:center}
+.cspot[disabled]{opacity:.4;cursor:default}
 .cap .dual{margin-top:2px}
 .wpost{width:70px}
 .seg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
@@ -675,6 +679,7 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 }
 @media (max-width:380px){ .grid,.grid.lg{grid-template-columns:repeat(2,1fr)} .stats{grid-template-columns:repeat(2,1fr)} }
 @media (hover:none){
+ .mfyc .rm{display:none}
  .dq{display:none}
  .rm{opacity:1}
  .dtile.watched .poster::before{opacity:1}
@@ -928,7 +933,8 @@ async function jikanDirect(path) {
 
 /* AniList fallback, answering in Jikan's shape (same logic as the desktop server) */
 const AL_FIELDS = 'id idMal title{romaji english native} coverImage{extraLarge large} seasonYear season startDate{year} format episodes duration status averageScore popularity favourites description(asHtml:false) genres tags{name rank isMediaSpoiler isGeneralSpoiler} studios(isMain:true){nodes{name}} externalLinks{site url type} trailer{id site}';
-const AL_PAGE = 'query($page:Int,$per:Int,$sort:[MediaSort],$search:String,$format:MediaFormat,$status:MediaStatus,$season:MediaSeason,$year:Int,$minPop:Int,$minScore:Int){Page(page:$page,perPage:$per){pageInfo{hasNextPage lastPage} media(type:ANIME,isAdult:false,sort:$sort,search:$search,format:$format,status:$status,season:$season,seasonYear:$year,popularity_greater:$minPop,averageScore_greater:$minScore){' + AL_FIELDS + '}}}';
+const AL_PAGE = 'query($page:Int,$per:Int,$sort:[MediaSort],$search:String,$format:MediaFormat,$status:MediaStatus,$season:MediaSeason,$year:Int,$minPop:Int,$minScore:Int,$genres:[String]){Page(page:$page,perPage:$per){pageInfo{hasNextPage lastPage} media(type:ANIME,isAdult:false,sort:$sort,search:$search,format:$format,status:$status,season:$season,seasonYear:$year,popularity_greater:$minPop,averageScore_greater:$minScore,genre_in:$genres){' + AL_FIELDS + '}}}';
+const AL_GENRE_OF = { 1: 'Action', 2: 'Adventure', 4: 'Comedy', 8: 'Drama', 9: 'Ecchi', 10: 'Fantasy', 14: 'Horror', 18: 'Mecha', 19: 'Music', 7: 'Mystery', 40: 'Psychological', 22: 'Romance', 24: 'Sci-Fi', 36: 'Slice of Life', 30: 'Sports', 37: 'Supernatural', 41: 'Thriller', 66: 'Mahou Shoujo' };
 const AL_ONE = 'query($id:Int){Media(idMal:$id,type:ANIME){' + AL_FIELDS + '}}';
 const AL_REC = 'query($id:Int){Media(idMal:$id,type:ANIME){recommendations(sort:RATING_DESC,perPage:12){nodes{mediaRecommendation{idMal title{romaji english} coverImage{extraLarge large}}}}}}';
 const AL_FORMATS = { TV: 'TV', TV_SHORT: 'TV', MOVIE: 'Movie', OVA: 'OVA', ONA: 'ONA', SPECIAL: 'Special', MUSIC: 'Music' };
@@ -967,6 +973,7 @@ async function anilistFallback(path) {
     const search = q.get('q'); if (search) v.search = search; const ob = q.get('order_by');
     v.sort = ob === 'score' ? [asc ? 'SCORE' : 'SCORE_DESC'] : (ob === 'members' || ob === 'popularity') ? [asc ? 'POPULARITY' : 'POPULARITY_DESC'] : search ? ['SEARCH_MATCH'] : ['POPULARITY_DESC'];
     const ms = parseFloat(q.get('min_score')); if (ms > 0) v.minScore = Math.round(ms * 10) - 1;
+    if (q.get('genres')) { const g = q.get('genres').split(',').map(x => AL_GENRE_OF[+x]).filter(Boolean); if (!g.length) return null; v.genres = g; v.minPop = 3000; }
   } else if (parts[0] === 'top' && parts[1] === 'anime') {
     const f = q.get('filter');
     if (f === 'bypopularity') v.sort = ['POPULARITY_DESC']; else if (f === 'favorite') v.sort = ['FAVOURITES_DESC'];
@@ -1220,11 +1227,110 @@ async function viewHome() {
       : 'Rate it, review it, add it to your diary and watchlist. Search above, or start from what’s airing.'}</p>
     ${d.watching.length ? sec('Continue watching', `<div class="row">${[...d.watching].sort((x, y) => (y.updated || 0) - (x.updated || 0)).slice(0, 8).map(w => { const a = d.anime[w.id] || getA(w.id) || { id: w.id };
       return posterCard(a, { meta: false, badges: false, caption: `${pbar(w, a)}<span class="ct">${esc(title(a))}</span><span class="ce">${epText(w, a)}</span>` }); }).join('')}</div>`, '#/watching', 'All') : ''}
+    <section class="sec" id="mfySec"><div class="sech"><h2>Made for you<small id="mfyWhy"></small></h2><div class="carr"><button class="cspot" id="mfySpot" disabled>${ic('expand')}<span>Spotlight</span></button><button class="cspot" id="mfyMore" hidden>Show more</button></div></div>
+      <div class="grid" id="mfy">${skel(12)}</div></section>
     ${recent.length ? sec('Recently logged', `<div class="row">${recent.map(e => posterCard(d.anime[e.animeId], { entry: e, badges: false })).join('')}</div>`, '#/diary', 'Diary') : ''}
     ${sec('Airing this season', `<div class="grid" id="g1">${skel(12)}</div>`)}
     ${sec('Highest rated of all time', `<div class="grid" id="g2">${skel(12)}</div>`, '#/discover', 'Browse more in Discover')}`;
+  loadMadeForYou(my);
   loadGrid('/seasons/now?sfw=true&limit=25', 'g1', my, (a, b) => b.members - a.members, 18);
   loadGrid('/top/anime?limit=18', 'g2', my);
+}
+/* ---------- Made for you: recommendations from your likes + favourite genres ---------- */
+const MAL_GENRE = { Action: 1, Adventure: 2, 'Avant Garde': 5, 'Award Winning': 46, Comedy: 4, Drama: 8, Fantasy: 10, Gourmet: 47, Horror: 14, Mystery: 7, Romance: 22,
+  'Sci-Fi': 24, 'Slice of Life': 36, Sports: 30, Supernatural: 37, Suspense: 41, Thriller: 41, Psychological: 40, Mecha: 18, Music: 19, School: 23, Military: 38, Isekai: 62,
+  Historical: 13, 'Super Power': 31, 'Martial Arts': 17, Space: 29, 'Time Travel': 78, Gore: 58, Mythology: 6, Iyashikei: 63, Samurai: 21, Vampire: 32, Detective: 39,
+  Parody: 20, Reincarnation: 72, Survival: 76, 'Team Sports': 77, 'Video Game': 79, Workplace: 48, 'Adult Cast': 50, 'Mahou Shoujo': 66, 'Organized Crime': 68, 'Urban Fantasy': 82 };
+const DEMOGRAPHICS = new Set(['Shounen', 'Seinen', 'Shoujo', 'Josei', 'Kids']);
+let MFY = null;                      // { key, list: [{a, score, why}], top: [genre names] }
+function tasteProfile() {
+  const d = D(), seeds = [], gw = {};
+  for (const [k, s] of Object.entries(d.status)) {
+    if (!s.watched && !s.liked && !s.rating) continue;
+    const id = +k, a = d.anime[id] || getA(id) || {};
+    const fav = d.favorites.includes(id);
+    const w = (fav ? 3 : 0) + (s.liked ? 2 : 0) + (s.rating ? Math.max(0, (s.rating - 5) / 2.5) : 0) + (s.watched ? 0.3 : 0);
+    if (s.rating && s.rating <= 4) { (a.genres || []).forEach(g => gw[g] = (gw[g] || 0) - 0.5); continue; }   // disliked: counts against its genres
+    (a.genres || []).forEach(g => { if (!DEMOGRAPHICS.has(g)) gw[g] = (gw[g] || 0) + 0.5 + w; });
+    if (fav || s.liked || s.rating >= 8) seeds.push({ id, w, a, kind: fav ? 'fav' : s.liked && !(s.rating >= 9) ? 'liked' : 'rated', r: s.rating });
+  }
+  d.favorites.filter(Boolean).forEach(id => { if (!seeds.some(x => x.id === id)) seeds.push({ id, w: 3, a: d.anime[id] || {}, kind: 'fav' }); });
+  seeds.sort((x, y) => y.w - x.w);
+  // nothing liked or rated yet? learn from what's been watched most recently
+  if (!seeds.length) Object.entries(d.status).filter(([, s]) => s.watched).sort((x, y) => (y[1].ts || 0) - (x[1].ts || 0)).slice(0, 5)
+    .forEach(([k]) => seeds.push({ id: +k, w: 1, a: d.anime[k] || {}, kind: 'watched' }));
+  const genres = Object.entries(gw).filter(([, v]) => v > 0).sort((x, y) => y[1] - x[1]).map(([g]) => g);
+  return { seeds: seeds.slice(0, 8), genres, gw };
+}
+const mfyExcluded = id => { const s = st(id); return s.watched || isWatching(id) || inWL(id) || (D().settings.notInterested || []).includes(+id); };
+async function buildMadeForYou() {
+  const tp = tasteProfile();
+  const key = stable([tp.seeds.map(x => x.id), tp.genres.slice(0, 4)]);
+  if (MFY && MFY.key === key) return MFY;
+  const cand = new Map(), seedIds = new Set(tp.seeds.map(x => x.id));
+  const add = (raw, pts, why, meta) => {
+    const id = raw.mal_id || raw.id; if (!id || seedIds.has(id)) return;
+    const c = cand.get(id) || { id, score: 0, whys: [], a: null };
+    c.score += pts; c.whys.push({ pts, why });
+    if (meta) c.a = meta; else if (!c.a) c.a = { id, title: raw.title, romaji: raw.title, image: imgOf(raw.images) };
+    cand.set(id, c);
+  };
+  // 1. "if you liked X…" recommendations for your strongest picks
+  await Promise.all(tp.seeds.slice(0, 6).map(async sd => {
+    try {
+      const j = await jikan(`/anime/${sd.id}/recommendations`);
+      const t = title(getA(sd.id) || sd.a || { id: sd.id });
+      const why = sd.kind === 'fav' ? `Because ${t} is a favourite` : sd.kind === 'liked' ? `Because you liked ${t}` : sd.kind === 'rated' ? `Because you gave ${t} ${starText(sd.r)}` : `Because you watched ${t}`;
+      (j.data || []).slice(0, 25).forEach((r, i) => add(r.entry, sd.w * (1 + Math.log1p(r.votes || 0)) * (1 - i / 35), why));
+    } catch (e) { /* skip that seed */ }
+  }));
+  // 2. the best-rated anime in your favourite genres
+  const gids = tp.genres.map(g => MAL_GENRE[g]).filter(Boolean);
+  const gq = [];
+  if (gids.length >= 2) gq.push([[gids[0], gids[1]], `${tp.genres.filter(g => MAL_GENRE[g])[0]} + ${tp.genres.filter(g => MAL_GENRE[g])[1]}`]);
+  gids.slice(0, 2).forEach((g, i) => gq.push([[g], tp.genres.filter(x => MAL_GENRE[x])[i]]));
+  await Promise.all(gq.map(async ([ids, label]) => {
+    try {
+      const j = await jikan(`/anime?genres=${ids.join(',')}&order_by=score&sort=desc&min_score=7.4&sfw=true&limit=25`);
+      (j.data || []).forEach((raw, i) => {
+        const a = normalize(raw); if (!a) return; remember(a);
+        const match = (a.genres || []).reduce((t, g) => t + Math.max(0, tp.gw[g] || 0), 0) / Math.max(1, Object.values(tp.gw).reduce((x, y) => Math.max(x, y), 1));
+        add(raw, (ids.length > 1 ? 2.2 : 1.4) * (1 - i / 40) + match * 0.8 + Math.max(0, (a.score || 7) - 7.5), `Top-rated ${label}`, a);
+      });
+    } catch (e) { /* skip */ }
+  }));
+  const list = [...cand.values()].map(c => { c.whys.sort((x, y) => y.pts - x.pts); return { a: META.get(c.id) || c.a, score: c.score + (c.whys.length > 1 ? 1 : 0), why: c.whys[0].why, n: c.whys.length }; })
+    .sort((x, y) => y.score - x.score);
+  // mix it up: each further pick with the same reason counts for a bit less, so one title doesn't fill the row
+  const used = {}, mixed = [], pool = list.slice();
+  while (pool.length) {
+    let bi = 0, bv = -1e9;
+    for (let i = 0; i < Math.min(pool.length, 80); i++) { const v = pool[i].score / (1 + 0.45 * (used[pool[i].why] || 0)); if (v > bv) { bv = v; bi = i; } }
+    const [x] = pool.splice(bi, 1); used[x.why] = (used[x.why] || 0) + 1; mixed.push(x);
+  }
+  MFY = { key, list: mixed, top: tp.genres.slice(0, 3), seeds: tp.seeds.length };
+  return MFY;
+}
+async function loadMadeForYou(my) {
+  const el = () => document.getElementById('mfy');
+  let res;
+  try { res = await buildMadeForYou(); } catch (e) { if (el()) el().innerHTML = errBox(e); return; }
+  if (my !== routeId || !el()) return;
+  let shown = 18;
+  const draw = () => {
+    const picks = res.list.filter(x => !mfyExcluded(x.a.id));
+    const why = document.getElementById('mfyWhy');
+    if (why) why.textContent = res.top.length ? `from your likes · you love ${res.top.join(', ')}` : res.seeds ? 'from what you’ve liked and rated' : '';
+    if (!picks.length) { el().innerHTML = `<p class="muted" style="grid-column:1/-1">${res.seeds ? 'Nothing new to suggest right now — check back after you’ve watched a few more.' : 'Like or rate a few anime you’ve watched and suggestions will show up here.'}</p>`; }
+    else el().innerHTML = picks.slice(0, shown).map(x => `<div class="pc mfyc">${posterCard(x.a, { meta: false, caption: `<span class="ct">${esc(title(x.a))}</span><span class="cw" title="${esc(x.why)}">${esc(x.why)}</span>` })}<button class="rm" data-nope="${x.a.id}" title="Not interested">${ICON.x}</button></div>`).join('');
+    const sp = document.getElementById('mfySpot'), mo = document.getElementById('mfyMore');
+    sp.disabled = !picks.length;
+    sp.onclick = () => { const ids = picks.slice(0, 60).map(x => x.a.id), whyOf = new Map(picks.map(x => [x.a.id, x.why])); spotList('Made for you', ids, id => esc(whyOf.get(id) || '')); };
+    mo.hidden = picks.length <= shown; mo.onclick = () => { shown += 18; draw(); };
+    el().querySelectorAll('[data-nope]').forEach(b => b.onclick = ev => { ev.preventDefault(); ev.stopPropagation();
+      const ni = D().settings.notInterested = D().settings.notInterested || []; ni.push(+b.dataset.nope); Store.save(); toast('Won’t suggest that again', false, 1500); draw(); });
+  };
+  draw();
 }
 async function loadGrid(path, elId, my, sort, max) {
   const el = () => document.getElementById(elId);
@@ -2294,6 +2400,11 @@ function spAct(what, val) {
   if (what === 'w') { const was = st(id).watched; ACTIONS.w(id, a); spRender(true); if (!was && st(id).watched && auto) spFlash('Watched ✓', () => spGo(1)); }
   if (what === 'wl') { const was = inWL(id); ACTIONS.wl(id, a); spRender(true); if (!was && inWL(id) && auto) spFlash('On your watchlist', () => spGo(1)); }
   if (what === 'l') { ACTIONS.l(id, a); spRender(true); }
+  if (what === 'nope') {
+    const ni = D().settings.notInterested = D().settings.notInterested || []; if (!ni.includes(id)) ni.push(id); Store.save();
+    SP.list.splice(SP.i, 1); SP.raw = SP.raw.filter(x => x.id !== id); if (SP.i >= SP.list.length) SP.i = Math.max(0, SP.list.length - 1);
+    toast('Won’t suggest that again', false, 1200); SP.dir = 1; spRender(); return;
+  }
   if (what === 'wa') { const was = isWatching(id); ACTIONS.wa(id, a); spRender(true); if (!was && isWatching(id) && auto) spFlash('Watching ▶', () => spGo(1)); }
   if (what === 'rate') {
     ensure(a); const nv = val === (st(id).rating || 0) ? 0 : val;
@@ -2346,6 +2457,7 @@ function spRender(soft) {
         <button class="sbtn wa ${isWatching(a.id) ? 'on' : ''}" data-sa="wa">${ic('play')}<span>Watching</span><kbd>C</kbd></button>
         <button class="sbtn l ${s.liked ? 'on' : ''}" data-sa="l">${ic('heart')}<span>Like</span><kbd>L</kbd></button>
         <button class="sbtn" data-sa="open">Details<kbd>Enter</kbd></button>
+        ${SP.label === 'Made for you' ? `<button class="sbtn" data-sa="nope" title="Stop suggesting this">${ic('x')}<span>Not for me</span><kbd>X</kbd></button>` : ''}
       </div>
       <div class="srate"><small>Rate</small><div id="spStars"></div></div>
       <div class="shint"><span><kbd>←</kbd><kbd>→</kbd> or scroll to browse</span><span><kbd>1</kbd>–<kbd>5</kbd> stars</span><span><kbd>0</kbd> clear</span><span><kbd>F</kbd> fullscreen</span><span><kbd>Esc</kbd> close</span></div>
@@ -2391,6 +2503,7 @@ document.addEventListener('keydown', ev => {
   else if (l === 'w') spAct('w');
   else if (l === 'q') spAct('wl');
   else if (l === 'c') spAct('wa');
+  else if (l === 'x' && SP.label === 'Made for you') spAct('nope');
   else if (l === 'l') spAct('l');
   else if (/^[1-5]$/.test(k)) spAct('rate', +k * 2);
   else if (k === '0') { const a = SP.list[SP.i]; if (a && st(a.id).rating) spAct('rate', st(a.id).rating); }
