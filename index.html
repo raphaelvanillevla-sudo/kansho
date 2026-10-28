@@ -540,6 +540,30 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
  .wbtns{grid-column:1/-1;justify-content:space-between;padding-top:6px}
  .act4 span{font-size:11px}
 }
+/* tighter header on narrower PC windows */
+@media (min-width:701px) and (max-width:1279px){
+ .top .in{gap:14px;padding:12px 18px}
+ #nav{gap:10px}
+ #nav a{font-size:11px;letter-spacing:.06em}
+ .search input{width:140px}
+ .search input:focus{width:200px}
+ .brand{font-size:21px}
+}
+/* back button */
+.backbtn{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px 0 6px;margin-right:-8px;border-radius:999px;border:1px solid var(--line2);background:var(--card);color:var(--text);cursor:pointer;font-size:13px;font-weight:600;flex:none}
+.backbtn:hover{border-color:var(--muted)}
+.backbtn .ic{width:18px;height:18px}
+.backbtn[hidden]{display:none}
+@media (min-width:701px){
+ .backbtn{width:34px;padding:0;justify-content:center;margin-right:-10px}
+ .backbtn .bl{display:none}
+ .top.hasback .in{gap:20px}
+}
+@media (max-width:700px){
+ .backbtn{height:32px;padding:0 10px 0 4px;margin-right:0}
+ .top.hasback .brand{font-size:19px}
+ .top.searching .backbtn{display:none}
+}
 /* ---------- phone ---------- */
 @media (max-width:700px){
  body{font-size:15px;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
@@ -658,6 +682,7 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 </head>
 <body>
 <header class="top"><div class="in">
+  <button class="backbtn" id="backBtn" hidden title="Back (Alt+←)"><span class="ic"></span><span class="bl">Back</span></button>
   <a class="brand" href="#/">Kanshō<b>.</b></a>
   <nav id="nav">
     <a href="#/" data-r="home">Home</a>
@@ -1152,6 +1177,8 @@ async function route(keep) {
   document.querySelectorAll('#libnav a').forEach(a => a.classList.toggle('on', a.dataset.r === r || (r === 'list' && a.dataset.r === 'lists')));
   document.getElementById('meBtn').classList.toggle('on', r === 'profile');
   document.querySelector('.top').classList.remove('searching');
+  updateBack(r);
+  const backTo = NAV.back;
   if (!keep) scrollTo(0, 0);
   if (r !== 'search') document.getElementById('q').value = '';
   V.classList.remove('hidew'); hoverTile = null;
@@ -1173,6 +1200,7 @@ async function route(keep) {
     }
   } catch (e) { console.error(e); V.innerHTML = errBox(e); }
   if (keep) scrollTo(0, y);
+  else if (backTo) { NAV.back = backTo; restoreScroll(); }
 }
 function refresh() { if (refreshFn) refreshFn(); else route(true); }
 const setTitle = t => document.title = t ? `${t} · Kanshō` : 'Kanshō';
@@ -1388,7 +1416,7 @@ function viewDiscover() {
   V.querySelectorAll('[data-rowspot]').forEach(b => b.onclick = () => { const r = DISC[b.dataset.rowspot]; if (r?.ids.length) spotFromRow(b.dataset.rowspot, r.ids[0]); });
   document.getElementById('hideW').onchange = ev => { d.settings.hideWatched = ev.target.checked; Store.save(); syncDiscover(); ROWS.forEach(r => fillCheck(r)); };
 
-  const state = {};
+  const state = {}, want = (NAV.back && NAV.back.rows) || {};
   const fillCheck = r => { const tr = document.getElementById('ct-' + r.key); if (tr && state[r.key].ok && tr.scrollWidth - tr.scrollLeft - tr.clientWidth < 900) more(r); };
   async function more(r) {
     const s = state[r.key], tr = document.getElementById('ct-' + r.key);
@@ -1409,6 +1437,10 @@ function viewDiscover() {
       if (my !== routeId) return;
       if (s.page === 0) tr.innerHTML = errBox(e); else toast('Couldn’t load more: ' + e.message, true, 4000);
     } finally { s.loading = false; }
+    if (want[r.key] && !s.restored && my === routeId) {
+      if (tr.scrollWidth - tr.clientWidth >= want[r.key] || !s.next || s.page >= 12) { tr.style.scrollBehavior = 'auto'; tr.scrollLeft = want[r.key]; s.restored = true; }
+      else return more(r);
+    }
     fillCheck(r);
   }
   ROWS.forEach(r => {
@@ -2921,6 +2953,8 @@ document.getElementById('navSpot').onclick = ev => { ev.preventDefault(); openSp
 document.getElementById('tabSpot').onclick = ev => { ev.preventDefault(); openSpotlight(); };
 document.querySelectorAll('#tabbar [data-ic]').forEach(i => i.innerHTML = ICON[i.dataset.ic]);
 document.getElementById('searchToggle').innerHTML = ic('search');
+document.querySelector('#backBtn .ic').innerHTML = S('<path d="M15 5l-7 7 7 7"/>');
+document.getElementById('backBtn').onclick = goBack;
 document.getElementById('meBtn').innerHTML = ic('user');
 document.getElementById('searchToggle').onclick = () => { const t = document.querySelector('.top'); t.classList.toggle('searching'); if (t.classList.contains('searching')) document.getElementById('q').focus(); };
 document.getElementById('q').addEventListener('blur', () => setTimeout(() => { if (!document.getElementById('q').value) document.querySelector('.top').classList.remove('searching'); }, 150));
@@ -2941,7 +2975,42 @@ document.addEventListener('keydown', ev => {
   else return;
   ev.preventDefault();
 });
-window.addEventListener('hashchange', () => route());
+/* ---------- back button + scroll memory ---------- */
+const NAV = { stack: [{ h: location.hash || '#/' }], back: null };
+const DETAIL = ['anime', 'friend', 'list', 'search'];
+const PLACE = { home: 'Home', discover: 'Discover', watched: 'Anime', watching: 'Watching', diary: 'Diary', watchlist: 'Watchlist', lists: 'Lists', list: 'List', friends: 'Friends', friend: 'Friend', profile: 'Profile', search: 'Search', anime: 'Back' };
+const placeOf = h => PLACE[(h.replace(/^#\/?/, '').split(/[/?]/)[0]) || 'home'] || 'Back';
+function onHashChange() {
+  const h = location.hash || '#/', st = NAV.stack, top = st[st.length - 1];
+  if (top) {   // remember where we were on the page we're leaving
+    top.y = scrollY;
+    top.rows = Object.fromEntries([...document.querySelectorAll('.ctrack')].map(t => [t.id.slice(3), t.scrollLeft]));
+  }
+  if (st.length > 1 && st[st.length - 2].h === h) { st.pop(); NAV.back = st[st.length - 1]; }
+  else if (top?.h !== h) { st.push({ h }); NAV.back = null; if (st.length > 60) st.splice(0, st.length - 60); }
+  route();
+}
+function goBack() {
+  if (NAV.stack.length > 1) history.back();
+  else location.hash = '#/';
+}
+function updateBack(r) {
+  const b = document.getElementById('backBtn'), show = DETAIL.includes(r);
+  b.hidden = !show;
+  if (show) { const prev = NAV.stack[NAV.stack.length - 2], lbl = prev ? placeOf(prev.h) : 'Home'; b.querySelector('.bl').textContent = lbl; b.title = (lbl === 'Back' ? 'Back' : 'Back to ' + lbl) + ' (Alt+←)'; }
+  document.querySelector('.top').classList.toggle('hasback', show);
+}
+function restoreScroll() {
+  const e = NAV.back; NAV.back = null; if (!e || !e.y) return;
+  const t0 = Date.now(), go = () => {   // pages fill in as data arrives — keep trying for a moment
+    if (document.documentElement.scrollHeight - innerHeight >= e.y - 4 || Date.now() - t0 > 2500) { scrollTo(0, e.y); return; }
+    setTimeout(go, 80);
+  };
+  go();
+}
+window.addEventListener('hashchange', onHashChange);
+document.addEventListener('keydown', ev => { if (ev.altKey && ev.key === 'ArrowLeft' && !SP) { ev.preventDefault(); goBack(); } });
+window.addEventListener('mouseup', ev => { if (ev.button === 3 && !SP) { ev.preventDefault(); goBack(); } });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') { if (Store.timer) Store.flush(); if (syncOn() && SYNC.timer) { clearTimeout(SYNC.timer); syncNow(); } }
   else if (syncOn()) syncNow();

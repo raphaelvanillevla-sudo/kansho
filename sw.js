@@ -1,5 +1,5 @@
 // Kanshō service worker: works offline, keeps posters, picks up new versions automatically.
-const SHELL_CACHE = 'kansho-shell-v3.6';
+const SHELL_CACHE = 'kansho-shell-v3.7';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'qrcode.js', 'jsqr.js'];
 const IMG_CACHE = 'kansho-img', API_CACHE = 'kansho-api', FONT_CACHE = 'kansho-font', KEEP = [SHELL_CACHE, IMG_CACHE, API_CACHE, FONT_CACHE];
 
