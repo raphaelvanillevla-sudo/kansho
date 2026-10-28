@@ -330,6 +330,7 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 .sposter{position:relative;height:min(calc(100vh - 140px),calc((100vw - 900px) * 1.5),980px);min-height:300px;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--card);box-shadow:0 40px 100px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.07);cursor:zoom-in}
 .sposter img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .sposter .ph{font-size:22px}
+.sposter.anim0{animation:none}
 .sposter.anim{animation:spin .28s cubic-bezier(.2,.8,.3,1)}
 .sposter.animb{animation:spinb .28s cubic-bezier(.2,.8,.3,1)}
 @keyframes spin{from{opacity:0;transform:translateX(40px) scale(.98)}}
@@ -409,7 +410,8 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 .popg{display:flex;align-items:center;gap:8px;margin:22px 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .popg:first-child{margin-top:0}
 .popg span:last-child{color:var(--dim)}
-.popsort{display:flex;justify-content:flex-end;margin:-4px 0 14px}
+.popsort{display:flex;justify-content:flex-end;gap:10px;margin:-4px 0 14px}
+.popsort #popSpot{margin-right:auto}
 
 /* friends */
 .fav-av{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:18px;color:#14100a;flex:none}
@@ -2138,7 +2140,7 @@ function makeSource(kind, type, opts = {}) {
   const pop = '/top/anime?filter=bypopularity' + (t ? '&' + t : ''), score = '/top/anime' + (t ? '?' + t : '');
   const src = { kind, done: false, seen: new Set() };
   const take = list => list.map(spotNorm).filter(a => a && !src.seen.has(a.id) && src.seen.add(a.id));
-  if (kind === 'single') { src.done = true; src.next = async () => []; return src; }
+  if (kind === 'single' || kind === 'list') { src.done = true; src.next = async () => []; return src; }
   if (kind === 'row') {           // continue a Discover row from where it had loaded
     let page = opts.startPage || 1;
     src.next = async () => { const j = await jikan(`${opts.path}${opts.path.includes('?') ? '&' : '?'}page=${page}&limit=25`); page++; if (!j.pagination?.has_next_page) src.done = true; return take(j.data || []); };
@@ -2206,10 +2208,11 @@ function openSpotlight(o = {}) {
   document.body.append(el); document.body.style.overflow = 'hidden';
   SP.el = el;
   const srcSel = el.querySelector('#spSrc');
-  srcSel.innerHTML = (o.kind === 'row' || o.kind === 'single' ? `<option value="${o.kind}">${esc(o.label || 'This anime')}</option>` : '') + SPOT_KINDS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+  const fixedKind = k => k === 'row' || k === 'single' || k === 'list';
+  srcSel.innerHTML = (fixedKind(o.kind) ? `<option value="${o.kind}">${esc(o.label || 'This anime')}</option>` : '') + SPOT_KINDS.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
   srcSel.value = SP.kind;
-  const typeSel = el.querySelector('#spType'); typeSel.value = SP.type || ''; typeSel.disabled = SP.kind === 'row' || SP.kind === 'single';
-  srcSel.onchange = () => { const k = srcSel.value; if (k !== 'row' && k !== 'single') { cfg.kind = k; Store.save(); } typeSel.disabled = k === 'row' || k === 'single'; spReset(k, typeSel.value); };
+  const typeSel = el.querySelector('#spType'); typeSel.value = SP.type || ''; typeSel.disabled = fixedKind(SP.kind);
+  srcSel.onchange = () => { const k = srcSel.value; if (!fixedKind(k)) { cfg.kind = k; Store.save(); } typeSel.disabled = fixedKind(k); spReset(k, typeSel.value); };
   typeSel.onchange = () => { cfg.type = typeSel.value; Store.save(); spReset(srcSel.value, typeSel.value); };
   el.querySelector('#spSkip').onchange = ev => { cfg.skip = ev.target.checked; Store.save(); spRefilter(); };
   el.querySelector('#spAuto').onchange = ev => { cfg.auto = ev.target.checked; Store.save(); };
@@ -2327,10 +2330,10 @@ function spRender(soft) {
   el.querySelector('#spBg').style.backgroundImage = a.image ? `url('${src(a.image)}')` : '';
   stage.innerHTML = `
     <button class="snav" id="spPrev" title="Previous (←)" ${SP.i === 0 ? 'disabled' : ''}>‹</button>
-    <div class="sposter ${SP.dir < 0 ? 'animb' : 'anim'}" id="spPoster" title="Open details (Enter)"><span class="ph">${esc(title(a))}</span>${a.image ? `<img src="${esc(src(a.image))}" alt="">` : ''}
+    <div class="sposter ${SP.dir < 0 ? 'animb' : SP.dir === 0 ? 'anim0' : 'anim'}" id="spPoster" title="Open details (Enter)"><span class="ph">${esc(title(a))}</span>${a.image ? `<img src="${esc(src(a.image))}" alt="">` : ''}
       <span class="sbadge ${s.watched ? 'show' : wl ? 'show wl' : ''}">${s.watched ? 'Watched' : 'On watchlist'}</span><div class="flash"></div></div>
     <div class="sinfo">
-      <div class="srank">${kindLabel && pos ? `#${pos.toLocaleString()} ${kindLabel}` : SP.kind === 'row' && pos ? `#${pos} · ${esc(SP.label)}` : SP.kind === 'random' ? 'Random pick' : '&nbsp;'}</div>
+      <div class="srank">${a.note ? a.note : kindLabel && pos ? `#${pos.toLocaleString()} ${kindLabel}` : (SP.kind === 'row' || SP.kind === 'list') && pos ? `#${pos} · ${esc(SP.label)}` : SP.kind === 'random' ? 'Random pick' : '&nbsp;'}</div>
       <h2>${esc(title(a))}</h2>
       ${altTitle(a) || a.jp ? `<div class="alt">${esc([altTitle(a), a.jp].filter(Boolean).join('  ·  '))}</div>` : ''}
       <div class="facts">${facts.map(f => `<span>${esc(f)}</span>`).join('<span>·</span>')}</div>
@@ -2354,6 +2357,23 @@ function spRender(soft) {
   stage.querySelector('#spPoster').onclick = () => spOpenDetails();
   stage.querySelectorAll('[data-sa]').forEach(b => b.onclick = () => b.dataset.sa === 'open' ? spOpenDetails() : spAct(b.dataset.sa));
   for (let k = 1; k <= 3; k++) { const nx = SP.list[SP.i + k]; if (nx?.image) new Image().src = src(nx.image); }   // preload
+  for (let k = 0; k <= 2; k++) spEnrich(SP.list[SP.i + k]);
+}
+function spEnrich(a) {
+  if (!a || a.syn || a._enr) return;
+  a._enr = true;
+  jikan(`/anime/${a.id}`).then(j => {
+    const n = spotNorm(j.data); if (!n) return;
+    for (const k in n) if (n[k] != null && n[k] !== '' && !(Array.isArray(n[k]) && !n[k].length)) a[k] = n[k];
+    remember(n);
+    if (SP && SP.list[SP.i] === a) { const d = SP.dir; SP.dir = 0; spRender(); SP.dir = d; }
+  }).catch(() => {});
+}
+// open any list of anime ids in Spotlight, in that order
+function spotList(label, ids, noteOf) {
+  ids = [...new Set(ids.map(Number).filter(Boolean))]; if (!ids.length) return;
+  const items = ids.map(id => { const a = { ...(getA(id) || { id }) }; const n = noteOf?.(id); if (n) a.note = n; return a; });
+  openSpotlight({ kind: 'list', label, items, startId: ids[0] });
 }
 function spOpenDetails() { const a = SP?.list[SP.i]; if (!a || Date.now() - (SP.swiped || 0) < 400) return; closeSpotlight(true); location.hash = '#/anime/' + a.id; }
 document.addEventListener('keydown', ev => {
@@ -2653,7 +2673,24 @@ function openFriendPop(f, kind) {
   openModal('', (m, close) => {
     const draw = () => {
       const b = body();
-      m.innerHTML = `${mhead(b.t)}<div class="mbody popbody">${b.sort ? `<div class="popsort"><select class="sel" id="popSort"><option value="recent">Recently watched</option><option value="rating">${kind === 'common' ? name + '’s rating' : 'Their rating'}</option><option value="title">Title</option></select>${kind === 'bothwl' ? '' : ''}</div>` : ''}${b.h}</div>`;
+      m.innerHTML = `${mhead(b.t)}<div class="mbody popbody"><div class="popsort"><button class="btn" id="popSpot" title="Browse these one by one, fullscreen">${ic('expand')} Spotlight</button>${b.sort ? `<select class="sel" id="popSort"><option value="recent">Recently watched</option><option value="rating">${kind === 'common' ? name + '’s rating' : 'Their rating'}</option><option value="title">Title</option></select>` : ''}</div>${b.h}</div>`;
+      const ids = [...m.querySelectorAll('.popbody a[href^="#/anime/"]')].map(x => +x.getAttribute('href').split('/').pop());
+      const sb = m.querySelector('#popSpot');
+      if (!ids.length) sb.remove();
+      else sb.onclick = () => {
+        const label = b.t.replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/g, '’');
+        const fw = new Map(fWatching(f).map(w => [w[0], w]));
+        close();
+        spotList(label, ids, id => {
+          const w = theirs.get(id), x = fw.get(id), bits = [];
+          if (w) bits.push(`${s.name} ${w[1] ? starText(w[1]) : 'watched'}${w[2] ? ' ♥' : ''}`);
+          else if (x) bits.push(`${s.name} is watching · ${epText({ ep: x[1] }, getA(id))}`);
+          else if ((s.watchlist || []).includes(id)) bits.push(`${s.name}: ${PRIO[fPrio(f, id)][0]}`);
+          if (mine[id]?.rating) bits.push(`You ${starText(mine[id].rating)}`);
+          else if (inWL(id)) bits.push(`You: ${PRIO[prioOf(id)][0]}`);
+          return bits.map(esc).join(' · ');
+        });
+      };
       m.querySelector('[data-close]').onclick = close;
       const ss = m.querySelector('#popSort'); if (ss) { ss.value = sort; ss.onchange = () => { sort = ss.value; draw(); }; }
       if (kind === 'bothwl') {
