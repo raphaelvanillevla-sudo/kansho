@@ -393,6 +393,24 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 .cols{font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px}
 .cols code{font-size:11.5px}
 
+/* friends: clickable stats + pop-out lists */
+.fstats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.stat.clk{border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:background .12s}
+.stat.clk:hover{background:#1c222b}
+.stat.clk:hover span{color:var(--amber)}
+.modal.wide{width:min(1000px,100%)}
+.popbody{max-height:72vh;overflow:auto}
+.popgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:18px 12px}
+.popgrid .cap{white-space:normal;display:flex;flex-direction:column;gap:2px}
+.popgrid .ct{color:#cfd6de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dual{display:flex;align-items:center;gap:6px;font-size:12px}
+.dual i{font-style:normal;color:var(--muted);min-width:0;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dual .stars{font-size:12px}
+.popg{display:flex;align-items:center;gap:8px;margin:22px 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.popg:first-child{margin-top:0}
+.popg span:last-child{color:var(--dim)}
+.popsort{display:flex;justify-content:flex-end;margin:-4px 0 14px}
+
 /* friends */
 .fav-av{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:18px;color:#14100a;flex:none}
 .fav-av.lg{width:84px;height:84px;font-size:36px}
@@ -538,6 +556,9 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
  .avatar,.fav-av.lg{width:64px;height:64px;font-size:28px}
  .prof>div:last-child[style]{margin-left:0!important}
  .stats{grid-template-columns:repeat(3,1fr);margin-bottom:32px}
+ .fstats{grid-template-columns:repeat(3,1fr)}
+ .popgrid{grid-template-columns:repeat(3,1fr);gap:14px 8px}
+ .popbody{max-height:80vh}
  .stat{padding:12px}
  .stat b{font-size:22px}
  .stat span{font-size:10px;letter-spacing:.08em}
@@ -902,7 +923,8 @@ function openModal(html, mount, cls = '') {
   const back = document.createElement('div'); back.className = 'mback';
   back.innerHTML = `<div class="modal ${cls}">${html}</div>`;
   const key = ev => { if (ev.key === 'Escape') close(); };
-  const close = () => { back.remove(); document.removeEventListener('keydown', key); };
+  const close = () => { back.remove(); document.removeEventListener('keydown', key); window.removeEventListener('hashchange', close); };
+  window.addEventListener('hashchange', close);
   back.addEventListener('mousedown', ev => { if (ev.target === back) close(); });
   back.querySelectorAll('[data-close]').forEach(b => b.onclick = close);
   document.addEventListener('keydown', key);
@@ -2208,7 +2230,7 @@ const parseCode = v => { const m = FRIEND_RE.exec(String(v || '').replace(/\s+/g
 function ago(ts) {
   if (!ts) return 'never'; const s = (Date.now() - ts) / 1000;
   if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago'; if (s < 86400) return Math.floor(s / 3600) + ' h ago';
-  if (s < 86400 * 30) return Math.floor(s / 86400) + ' days ago'; return fmtDate(new Date(ts).toISOString().slice(0, 10));
+  if (s < 86400 * 30) { const n = Math.floor(s / 86400); return n === 1 ? 'yesterday' : n + ' days ago'; } return fmtDate(new Date(ts).toISOString().slice(0, 10));
 }
 
 function buildPublicProfile() {
@@ -2364,30 +2386,95 @@ async function viewFriend(code) {
     const watched = [...s.watched].sort((a, b) => (b[3] || 0) - (a[3] || 0));
     const recs = s.watched.filter(([id, r]) => r >= 8 && !mine[id]?.watched).sort((a, b) => b[1] - a[1]).slice(0, 12);
     const show = f.showAll ? watched : watched.slice(0, 36);
+    const bothWL = (s.watchlist || []).filter(id => inWL(id));
     V.innerHTML = `
       <div class="prof">${avatar(s.name, f.code, 'lg')}<div><h1 class="pt">${esc(s.name)}</h1>${s.bio ? `<p>${esc(s.bio)}</p>` : ''}<p>Updated ${ago(s.updated)}${f.error ? ` · <span style="color:#f3b9c4">${esc(f.error)}</span>` : ''}</p></div>
         <div style="margin-left:auto;display:flex;gap:10px"><button class="btn" id="frRefresh">Refresh</button><button class="btn danger" id="frRemove">${ic('trash')} Remove</button></div></div>
-      <div class="stats">
-        <div class="stat"><b>${s.watched.length}</b><span>Anime</span></div>
-        <div class="stat"><b>${new Set((s.diary || []).filter(e => e.d?.startsWith(yr)).map(e => e.a)).size}</b><span>This year</span></div>
-        <div class="stat"><b>${(s.diary || []).length}</b><span>Diary entries</span></div>
-        <div class="stat"><b>${avg}</b><span>Avg rating</span></div>
-        <div class="stat"><b>${tm.common}</b><span>In common</span></div>
-        <div class="stat"><b>${tm.match != null ? tm.match + '%' : '–'}</b><span>Taste match</span></div>
+      <div class="stats fstats">
+        <button class="stat clk" data-pop="watched"><b>${s.watched.length}</b><span>Anime</span></button>
+        <button class="stat clk" data-pop="year"><b>${new Set((s.diary || []).filter(e => e.d?.startsWith(yr)).map(e => e.a)).size}</b><span>This year</span></button>
+        <button class="stat clk" data-pop="diary"><b>${(s.diary || []).length}</b><span>Diary entries</span></button>
+        <button class="stat clk" data-pop="rated"><b>${avg}</b><span>Avg rating</span></button>
+        <button class="stat clk" data-pop="common"><b>${tm.common}</b><span>In common</span></button>
+        <button class="stat clk" data-pop="match"><b>${tm.match != null ? tm.match + '%' : '–'}</b><span>Taste match</span></button>
+        <button class="stat clk" data-pop="bothwl"><b>${bothWL.length}</b><span>Both want to watch</span></button>
       </div>
       ${s.favorites?.length ? sec('Favourite anime', `<div class="favs">${s.favorites.map(id => posterCard(fAnime(f, id), { meta: false })).join('')}</div>`) : ''}
       ${(s.diary || []).length ? sec('Recent activity', `<div class="feed">${friendActivity(f, 12).map(feedRow).join('')}</div>`) : ''}
       ${recs.length ? sec(`Loved by ${esc(s.name)}, not seen by you`, `<div class="grid">${recs.map(([id, r, l]) => posterCard(fAnime(f, id), { entry: { rating: r, liked: l } })).join('')}</div>`) : ''}
+      ${sec(`You both want to watch · ${bothWL.length}`, bothWL.length ? `<div class="grid">${bothWL.map(id => posterCard(fAnime(f, id), { meta: false, caption: esc(title(fAnime(f, id))) })).join('')}</div>`
+        : `<p class="muted">Nothing on both your watchlists yet${(s.watchlist || []).length ? ` — ${esc(s.name)} has ${s.watchlist.length} on theirs, see below` : ''}.</p>`)}
       ${sec(`Watched · ${s.watched.length}`, watched.length ? `<div class="grid">${show.map(([id, r, l]) => posterCard(fAnime(f, id), { entry: { rating: r, liked: l } })).join('')}</div>${watched.length > show.length ? `<p style="text-align:center;margin-top:18px"><button class="btn" id="frAll">Show all ${watched.length}</button></p>` : ''}` : '<p class="muted">Nothing yet.</p>')}
       ${(s.watchlist || []).length ? sec(`Watchlist · ${s.watchlist.length}`, `<div class="grid">${s.watchlist.map(id => posterCard(fAnime(f, id), { meta: false })).join('')}</div>`) : ''}
       ${(s.lists || []).map(l => sec(esc(l.n), `${l.d ? `<p class="ldesc" style="margin:0 0 14px">${esc(l.d)}</p>` : ''}<div class="grid">${l.it.map((id, i) => `<div class="pc">${l.rk ? `<span class="rank">${i + 1}</span>` : ''}${posterCard(fAnime(f, id), { meta: false })}</div>`).join('')}</div>`)).join('')}`;
     V.querySelector('#frRefresh').onclick = async () => { await fetchFriend(f, true); Store.save(); if (my === routeId) draw(); };
     V.querySelector('#frRemove').onclick = () => confirmBox(`Remove ${esc(s.name)} from your friends?`, 'Remove', () => { D().friends = D().friends.filter(x => x !== f); Store.save(); location.hash = '#/friends'; });
     const all = V.querySelector('#frAll'); if (all) all.onclick = () => { f.showAll = true; draw(); };
+    V.querySelectorAll('[data-pop]').forEach(b => b.onclick = () => openFriendPop(f, b.dataset.pop));
   };
   draw(); refreshFn = draw;
   if (!f.fetched || Date.now() - f.fetched > 120000 || !f.snap) { await fetchFriend(f); Store.save(); if (my === routeId) draw(); }
 }
+// pop-out lists behind the friend page's stats
+function openFriendPop(f, kind) {
+  const s = f.snap; if (!s) return;
+  const name = esc(s.name), mine = D().status, yr = String(new Date().getFullYear());
+  const theirs = new Map(s.watched.map(w => [w[0], w]));
+  const card = (id, cap) => posterCard(fAnime(f, id), { meta: false, caption: cap });
+  const stars = r => r ? `<span class="stars">${starText(r)}</span>` : '<span class="muted">–</span>';
+  const both = (id, r) => `<span class="dual"><i>You</i>${stars(mine[id]?.rating)}</span><span class="dual"><i>${name}</i>${stars(r)}</span>`;
+  const cap1 = (id, r, l) => `<span class="ct">${esc(title(fAnime(f, id)))}</span><span class="dual">${stars(r)}${l ? `<span class="hl">${ICON.heart}</span>` : ''}</span>`;
+  const grid = items => items.length ? `<div class="popgrid">${items.join('')}</div>` : '<p class="muted">Nothing here.</p>';
+  const groups = (list, keyOf, labelOf, item) => { const m = new Map(); list.forEach(x => { const k = keyOf(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x); });
+    return [...m.entries()].map(([k, xs]) => `<h4 class="popg">${labelOf(k)} <span>${xs.length}</span></h4>${grid(xs.map(item))}`).join(''); };
+  const sorters = {
+    recent: (a, b) => (b[3] || 0) - (a[3] || 0), rating: (a, b) => (b[1] || 0) - (a[1] || 0) || (b[3] || 0) - (a[3] || 0),
+    title: (a, b) => title(fAnime(f, a[0])).localeCompare(title(fAnime(f, b[0]))),
+  };
+  let sort = 'recent';
+  const body = () => {
+    const common = s.watched.filter(w => mine[w[0]]?.watched);
+    switch (kind) {
+      case 'watched': return { t: `${name} watched · ${s.watched.length}`, sort: true, h: grid([...s.watched].sort(sorters[sort]).map(([id, r, l]) => card(id, cap1(id, r, l)))) };
+      case 'year': case 'diary': {
+        const evs = friendActivity(f, 1000).filter(e => !e.bulk && e.date && (kind === 'diary' || e.date.startsWith(yr)));
+        return { t: kind === 'year' ? `${name} in ${yr} · ${evs.length}` : `${name}’s diary · ${evs.length}`, h: evs.length ? `<div class="feed">${evs.map(feedRow).join('')}</div>` : `<p class="muted">No diary entries${kind === 'year' ? ' this year' : ''} yet — ${name} only marks anime as watched.</p>` };
+      }
+      case 'rated': {
+        const r = s.watched.filter(w => w[1]);
+        return { t: `${name}’s ratings · ${r.length}`, h: r.length ? groups(r.sort((a, b) => b[1] - a[1]), w => w[1], k => `<span class="stars">${starText(k)}</span>`, ([id, rr, l]) => card(id, cap1(id, 0, l))) : '<p class="muted">No ratings yet.</p>' };
+      }
+      case 'common': return { t: `You’ve both watched · ${common.length}`, sort: true, h: grid(common.sort(sorters[sort]).map(([id, r]) => card(id, `<span class="ct">${esc(title(fAnime(f, id)))}</span>${both(id, r)}`))) };
+      case 'match': {
+        const pairs = common.filter(([id, r]) => r && mine[id]?.rating).map(w => ({ w, d: Math.abs(w[1] - mine[w[0]].rating) }));
+        const tm = tasteMatch(f);
+        const head = `<p class="muted" style="margin:0 0 16px">${tm.match != null ? `<b style="color:var(--text)">${tm.match}% match</b> — how close your ratings are on the ${pairs.length} anime you’ve both rated.` : `You need at least 3 anime you’ve <b>both rated</b> for a match score — you have ${pairs.length}. Rate a few of the ones you’ve both watched.`}</p>`;
+        const band = d => d <= 1 ? 0 : d <= 3 ? 1 : 2, labels = ['You agree', 'Close enough', 'You disagree'];
+        return { t: 'Taste match', h: head + (pairs.length ? groups(pairs.sort((a, b) => a.d - b.d), x => band(x.d), k => labels[k], x => card(x.w[0], `<span class="ct">${esc(title(fAnime(f, x.w[0])))}</span>${both(x.w[0], x.w[1])}`)) : '') };
+      }
+      case 'bothwl': {
+        const ids = (s.watchlist || []).filter(id => inWL(id));
+        return { t: `You both want to watch · ${ids.length}`, h: ids.length ? `<p class="muted" style="margin:0 0 16px">On your watchlist <b>and</b> ${name}’s — pick one for your next watch together.</p>${grid(ids.map(id => card(id, `<span class="ct">${esc(title(fAnime(f, id)))}</span>`)))}`
+          : `<p class="muted">Nothing on both watchlists yet. ${name} has ${(s.watchlist || []).length} on theirs, you have ${D().watchlist.length}.</p>` };
+      }
+    }
+    return { t: '', h: '' };
+  };
+  openModal('', (m, close) => {
+    const draw = () => {
+      const b = body();
+      m.innerHTML = `${mhead(b.t)}<div class="mbody popbody">${b.sort ? `<div class="popsort"><select class="sel" id="popSort"><option value="recent">Recently watched</option><option value="rating">${kind === 'common' ? name + '’s rating' : 'Their rating'}</option><option value="title">Title</option></select>${kind === 'bothwl' ? '' : ''}</div>` : ''}${b.h}</div>`;
+      m.querySelector('[data-close]').onclick = close;
+      const ss = m.querySelector('#popSort'); if (ss) { ss.value = sort; ss.onchange = () => { sort = ss.value; draw(); }; }
+      if (kind === 'bothwl') {
+        const ids = (s.watchlist || []).filter(id => inWL(id));
+        if (ids.length > 1) { const bt = document.createElement('button'); bt.className = 'btn pri'; bt.style.margin = '0 0 16px'; bt.innerHTML = `${ic('dice')} Pick one for us`; bt.onclick = () => { const id = ids[Math.floor(Math.random() * ids.length)]; toast('Tonight: ' + title(fAnime(f, id))); location.hash = '#/anime/' + id; }; m.querySelector('.popbody').prepend(bt); }
+      }
+    };
+    draw();
+  }, 'wide');
+}
+
 // on an anime's page: which friends watched it / want to
 function friendsOnAnime(id) {
   const out = [];
