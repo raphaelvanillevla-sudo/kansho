@@ -663,7 +663,7 @@ function toast(msg, err, ms = 2600) {
 /* ---------- storage ---------- */
 const DEFAULT = () => ({ version: 1, profile: { name: '', bio: '' }, settings: { titles: 'english' },
   anime: {}, status: {}, entries: [], watchlist: [], favorites: [null, null, null, null], lists: [],
-  friends: [], share: { enabled: false, code: '' }, sync: {} });
+  friends: [], share: { enabled: false, code: '' }, sync: {}, gh: {} });
 let APP = { native: false, dataDir: '' };   // filled from /api/info when running as the desktop app
 const Store = {
   mode: 'local', data: DEFAULT(), timer: null,
@@ -700,6 +700,8 @@ function fixData() {
   if (!Array.isArray(d.friends)) d.friends = [];
   if (!d.share || typeof d.share !== 'object') d.share = { enabled: false, code: '' };
   if (!d.sync || typeof d.sync !== 'object') d.sync = {};
+  if (!d.gh || typeof d.gh !== 'object') d.gh = {};
+  if (d.sync.code && !d.sync.code.startsWith('g1.')) d.sync = { device: d.sync.device };   // codes from the jsonblob days
   if (!d.sync.device) d.sync.device = uid();
   while (d.favorites.length < 4) d.favorites.push(null);
   d.favorites = d.favorites.slice(0, 4);
@@ -1603,28 +1605,66 @@ function softRefresh() { const r = parseHash().parts[0] || 'home'; if (!['anime'
 /* =====================================================================
    ONLINE STORAGE (friend profiles + the encrypted sync copy) — jsonblob.com
    ===================================================================== */
-const SHARE_BASE = DEV('share', 'https://jsonblob.com/api/jsonBlob');
-const blobApi = {
-  async req(method, id, body) {
-    const url = viaServer() ? '/api/blob' + (id ? '?id=' + encodeURIComponent(id) : '') : SHARE_BASE + (id ? '/' + encodeURIComponent(id) : '');
+const GH_API = DEV('ghapi', 'https://api.github.com'), GH_RAW = DEV('ghraw', 'https://gist.githubusercontent.com');
+const SYNC_FILE = 'kansho-sync.json', PROFILE_FILE = 'kansho-profile.json';
+const TOKEN_URL = 'https://github.com/settings/tokens/new?scopes=gist&description=Kansh%C5%8D';
+const gh = {
+  async req(method, path, token, body) {
     let r;
     try {
-      r = await fetch(url, { method, cache: 'no-store', headers: Object.assign({ Accept: 'application/json' }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
-    } catch (e) { throw new Error(navigator.onLine === false ? 'you’re offline' : 'the online storage can’t be reached'); }
-    if (!r.ok) { let msg = 'HTTP ' + r.status; try { const j = await r.json(); if (j.error) msg = j.error; } catch (_) {} const e = new Error(msg); e.status = r.status; throw e; }
-    return r;
+      r = await fetch(GH_API + path, { method, cache: 'no-store', headers: Object.assign({ Accept: 'application/vnd.github+json' },
+        token ? { Authorization: 'Bearer ' + token } : {}, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+    } catch (e) { throw new Error(navigator.onLine === false ? 'you’re offline' : 'GitHub can’t be reached right now'); }
+    if (!r.ok) {
+      let msg = 'GitHub answered ' + r.status; try { const j = await r.json(); if (j.message) msg = 'GitHub: ' + j.message; } catch (_) {}
+      if (r.status === 401) msg = 'GitHub refused the token (expired or deleted?) — paste a new one in ⚙ Settings → Sync';
+      if (r.status === 403 && /rate limit/i.test(msg)) msg = 'GitHub is rate-limiting for a few minutes — try again shortly';
+      const e = new Error(msg); e.status = r.status; throw e;
+    }
+    return r.status === 204 ? null : r.json();
   },
-  async get(id) { return (await this.req('GET', id)).json(); },
-  async put(id, obj) { await this.req('PUT', id, obj); },
-  async del(id) { await this.req('DELETE', id); },
-  async create(obj) {
-    const r = await this.req('POST', null, obj);
-    if (viaServer()) return (await r.json()).id;
-    const id = r.headers.get('X-jsonblob') || (r.headers.get('Location') || '').split('/').filter(Boolean).pop();
-    if (!id) throw new Error('the online storage didn’t return an id');
-    return id;
+  user(token) { return this.req('GET', '/user', token); },
+  async create(token, file, obj, description) { return (await this.req('POST', '/gists', token, { description, public: false, files: { [file]: { content: JSON.stringify(obj) } } })).id; },
+  async read(id, file, token) {
+    const j = await this.req('GET', '/gists/' + id, token), f = j.files?.[file];
+    if (!f) { const e = new Error('that isn’t a Kanshō file'); e.status = 404; throw e; }
+    return JSON.parse(f.truncated ? await (await fetch(f.raw_url, { cache: 'no-store' })).text() : f.content);
+  },
+  write(id, file, obj, token) { return this.req('PATCH', '/gists/' + id, token, { files: { [file]: { content: JSON.stringify(obj) } } }); },
+  remove(id, token) { return this.req('DELETE', '/gists/' + id, token); },
+  async raw(user, id, file) {
+    const r = await fetch(`${GH_RAW}/${user}/${id}/raw/${file}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!r.ok) { const e = new Error(r.status === 404 ? 'no profile found for that code' : 'GitHub answered ' + r.status); e.status = r.status; throw e; }
+    return r.json();
   },
 };
+const ghToken = () => Store.data?.gh?.token || '';
+// ask once for a GitHub token (stored on this device; travels to the phone inside the sync code)
+function askToken(why) {
+  return new Promise(resolve => {
+    let done = false;
+    const close = openModal(`${mhead('Connect GitHub')}<div class="mbody">
+      <p style="margin:0 0 12px">${why}</p>
+      <ol class="steps"><li><a class="btn" href="${TOKEN_URL}" target="_blank" rel="noopener">Create a token on GitHub ↗</a></li>
+        <li>On that page set <b>Expiration</b> to <b>No expiration</b>. The <b>gist</b> box is already ticked; leave the rest.</li>
+        <li>Click <b>Generate token</b> at the bottom, copy it (starts with <code>ghp_</code>) and paste it here:</li></ol>
+      <div class="newl"><input type="text" id="tkIn" placeholder="ghp_…" autocomplete="off" spellcheck="false"><button class="btn pri" id="tkGo">Connect</button></div>
+      <p class="muted" style="font-size:12.5px;margin:12px 0 0">The token can only touch your gists. Kanshō only stores encrypted data with it, and you can revoke it any time on GitHub.</p></div>`, (m, cl) => {
+      const go = async () => {
+        const t = m.querySelector('#tkIn').value.trim(); if (!t) return;
+        m.querySelector('#tkGo').disabled = true;
+        try {
+          const u = await gh.user(t);
+          D().gh = { token: t, login: u.login }; Store.save(true); done = true; cl(); resolve(t);
+        } catch (e) { toast(e.message, true, 5000); m.querySelector('#tkGo').disabled = false; }
+      };
+      m.querySelector('#tkGo').onclick = go; m.querySelector('#tkIn').onkeydown = ev => { if (ev.key === 'Enter') go(); };
+      m.querySelector('#tkIn').focus();
+      const obs = new MutationObserver(() => { if (!document.body.contains(m)) { obs.disconnect(); if (!done) resolve(''); } });
+      obs.observe(document.getElementById('modalRoot'), { childList: true });
+    }, 'sm');
+  });
+}
 
 /* =====================================================================
    SYNC — PC ⇄ phone through an encrypted copy, merged three ways
@@ -1700,25 +1740,26 @@ async function unseal(box, k) {
 }
 const SYNC = { busy: false, timer: null, again: false };
 const syncOn = () => !!Store.data?.sync?.code;
-const CODE_RE = /^([A-Za-z0-9_-]{4,80})\.([A-Za-z0-9_-]{16,64})$/;
-function scheduleSync(delay = 3000) { if (!syncOn()) return; clearTimeout(SYNC.timer); SYNC.timer = setTimeout(() => syncNow(), delay); }
+const CODE_RE = /^g1\.([0-9a-f]{20,40})\.([A-Za-z0-9_-]{16,64})\.([A-Za-z0-9_]{20,255})$/;   // g1.<gist>.<key>.<token>
+function scheduleSync(delay = 6000) { if (!syncOn()) return; clearTimeout(SYNC.timer); SYNC.timer = setTimeout(() => syncNow(), delay); }
 async function syncNow() {
   const sc = D().sync; if (!sc.code) return;
   if (SYNC.busy) { SYNC.again = true; return; }
   if (!window.crypto?.subtle) { sc.error = 'this browser can’t encrypt (needs https)'; return; }
   SYNC.busy = true; syncBadge();
-  const [, id, key] = CODE_RE.exec(sc.code) || [];
+  const [, id, key, token] = CODE_RE.exec(sc.code) || [];
+  if (!id) { sc.error = 'old sync code — turn sync on again'; SYNC.busy = false; syncBadge(); return; }
   try {
     for (let attempt = 0; attempt < 4; attempt++) {
-      const box = await blobApi.get(id);
+      const box = await gh.read(id, SYNC_FILE, token);
       const remote = await unseal(box, key);
       const local = syncView(D()), base = sc.base;
       const merged = merge3(base, local, remote.view);
       const pullChanges = !same(merged, local), pushChanges = !same(merged, remote.view);
       if (pushChanges) {
-        const box2 = await blobApi.get(id);                 // someone else wrote meanwhile? merge again
-        if (box2.ct !== box.ct) { await sleep(300); continue; }
-        await blobApi.put(id, await seal({ rev: (remote.rev || 0) + 1, by: sc.device, byName: deviceName(), at: Date.now(), view: merged }, key));
+        const box2 = await gh.read(id, SYNC_FILE, token);   // someone else wrote meanwhile? merge again
+        if (box2.ct !== box.ct) { await sleep(400); continue; }
+        await gh.write(id, SYNC_FILE, await seal({ rev: (remote.rev || 0) + 1, by: sc.device, byName: deviceName(), at: Date.now(), view: merged }, key), token);
       }
       if (pullChanges) applyView(D(), merged);
       const s2 = D().sync; s2.base = clone(merged); s2.last = Date.now(); s2.error = ''; s2.lastFrom = remote.byName || '';
@@ -1740,10 +1781,12 @@ function afterSyncPull(from) {
   refresh();
 }
 async function startSync() {
+  const token = ghToken() || await askToken('Kanshō keeps the sync copy in a private Gist on your GitHub account — encrypted, so GitHub only ever sees scrambled data.');
+  if (!token) throw new Error('GitHub isn’t connected');
   const key = b64u.enc(crypto.getRandomValues(new Uint8Array(16)));
   const view = syncView(D());
-  const id = await blobApi.create(await seal({ rev: 1, by: D().sync.device, byName: deviceName(), at: Date.now(), view }, key));
-  Object.assign(D().sync, { code: id + '.' + key, base: clone(view), last: Date.now(), error: '' });
+  const id = await gh.create(token, SYNC_FILE, await seal({ rev: 1, by: D().sync.device, byName: deviceName(), at: Date.now(), view }, key), 'Kanshō sync (encrypted — do not edit)');
+  Object.assign(D().sync, { code: `g1.${id}.${key}.${token}`, base: clone(view), last: Date.now(), error: '' });
   Store.save(true); syncBadge();
 }
 function extractSyncCode(text) {
@@ -1754,9 +1797,10 @@ function extractSyncCode(text) {
 }
 async function joinSync(code) {
   code = extractSyncCode(code); if (!code) throw new Error('that isn’t a Kanshō sync code');
-  const [, id, key] = CODE_RE.exec(code);
-  await unseal(await blobApi.get(id), key);                 // check it opens before linking
+  const [, id, key, token] = CODE_RE.exec(code);
+  await unseal(await gh.read(id, SYNC_FILE, token), key);   // check it opens before linking
   Object.assign(D().sync, { code, base: undefined, error: '' });   // no base yet: first sync combines both sides
+  if (!ghToken()) { D().gh = { token }; gh.user(token).then(u => { D().gh.login = u.login; Store.save(true); }).catch(() => {}); }
   Store.save(true); await syncNow();
   if (D().sync.error) throw new Error(D().sync.error);
 }
@@ -1769,7 +1813,7 @@ function syncBadge() {
 }
 const loadScript = src => new Promise((ok, no) => { if (document.querySelector(`script[data-src="${src}"]`)) return ok(); const s = document.createElement('script'); s.src = src; s.dataset.src = src; s.onload = ok; s.onerror = () => no(new Error('couldn’t load ' + src)); document.head.append(s); });
 const PWA_URL = DEV('pwa', 'https://raphaelvanillevla-sudo.github.io/kansho/');
-const linkUrl = code => PWA_URL ? `${PWA_URL.replace(/\/?$/, '/')}#link=${encodeURIComponent(code)}` : `kansho:link:${code}`;
+const linkUrl = code => PWA_URL ? `${PWA_URL.replace(/\/?$/, '/')}#link=${code}` : `kansho:link:${code}`;
 async function qrSvg(text) {
   await loadScript('qrcode.js');
   const q = qrcode(0, 'M'); q.addData(text); q.make();
@@ -1788,7 +1832,8 @@ function openSyncPanel() {
       ${onPhone ? `<div class="btns"><button class="btn pri" id="sScan">Scan code from your PC</button><button class="btn" id="sPaste">Paste a code</button></div>
         <p class="muted" style="margin:14px 0 0;font-size:13px">On the PC: open Kanshō → ⚙ Settings → Sync → Link your iPhone.</p>
         <p style="margin:18px 0 0"><button class="btn" id="sStart">Or start a new sync from this phone</button></p>`
-      : `<div class="btns"><button class="btn pri" id="sStart">Turn on sync</button><button class="btn" id="sPaste">I already have a code</button></div>`}
+      : `<p class="muted" style="margin:-6px 0 16px;font-size:13px">It uses a private Gist on your GitHub account${ghToken() ? ` (connected as <b>${esc(D().gh.login || 'you')}</b>)` : ' — you’ll connect GitHub once, it takes a minute'}.</p>
+        <div class="btns"><button class="btn pri" id="sStart">Turn on sync</button><button class="btn" id="sPaste">I already have a code</button></div>`}
       <div id="sQR"></div>`}</div>`;
     const $ = q => m.querySelector(q);
     m.querySelectorAll('[data-close]').forEach(b => b.onclick = close);
@@ -1810,7 +1855,7 @@ function openSyncPanel() {
       <li>⚙ Settings → <b>Sync</b> → <b>Scan code from your PC</b>, and point it at this square</li></ol>
       <p class="muted" style="font-size:12.5px;margin:10px 0 6px">Or copy the code and paste it there:</p>
       <div class="codeline"><code>${esc(code)}</code><button class="btn" id="cpSync">Copy</button></div>
-      <p class="muted" style="font-size:12px;margin-top:10px">Keep this code private — it unlocks your data.</p></div></div>`;
+      <p class="muted" style="font-size:12px;margin-top:10px">Keep this code private — it unlocks your data and your GitHub gists.</p></div></div>`;
     box.querySelector('#cpSync').onclick = () => copyText(code, 'Sync code copied');
     try { box.querySelector('#qrImg').innerHTML = await qrSvg(linkUrl(code)); } catch (e) { box.querySelector('#qrImg').textContent = e.message; }
   };
@@ -2157,8 +2202,9 @@ function spotSingle(a) { if (a) openSpotlight({ kind: 'single', label: 'This ani
 const AV_COLORS = ['#ffb340', '#ff5a78', '#3ddc97', '#5cb2ff', '#c792ff', '#ff8a4c', '#2fd4d4', '#f7d154'];
 const hashStr = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
 const avatar = (name, key, cls = '') => `<span class="fav-av ${cls}" style="background:${AV_COLORS[parseInt(hashStr(String(key)), 36) % AV_COLORS.length]}">${esc(((name || '?').trim()[0] || '?').toUpperCase())}</span>`;
-const fmtCode = c => String(c || '').replace(/(.{4})(?=.)/g, '$1 ');
-const parseCode = v => { v = String(v || '').trim(); const m = /([A-Za-z0-9_-]{4,80})\/?\s*$/.exec(v.replace(/\s+/g, '')); return m ? m[1] : ''; };
+const fmtCode = c => String(c || '');
+const FRIEND_RE = /([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))\/([0-9a-f]{20,40})/;
+const parseCode = v => { const m = FRIEND_RE.exec(String(v || '').replace(/\s+/g, '')); return m ? m[1] + '/' + m[2] : ''; };
 function ago(ts) {
   if (!ts) return 'never'; const s = (Date.now() - ts) / 1000;
   if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago'; if (s < 86400) return Math.floor(s / 3600) + ' h ago';
@@ -2184,15 +2230,17 @@ function schedulePublish(delay = 15000) {
 }
 async function publishNow(force) {
   const sh = D().share; if (!sh.enabled || pubBusy) return;
+  if (!ghToken()) { sh.error = 'connect GitHub to share (⚙ Settings → Sync)'; return; }
   const prof = buildPublicProfile(), h = hashStr(JSON.stringify({ ...prof, updated: 0 }));
   if (!force && sh.code && h === sh.hash) return;
   pubBusy = true;
   try {
-    let code = sh.code;
-    if (code) { try { await blobApi.put(code, prof); } catch (e) { if (e.status !== 404) throw e; code = ''; } }
+    let code = parseCode(sh.code);
+    if (code) { try { await gh.write(code.split('/')[1], PROFILE_FILE, prof, ghToken()); } catch (e) { if (e.status !== 404) throw e; code = ''; } }
     if (!code) {
-      code = await blobApi.create(prof);
-      if (sh.code) toast('Your friend code changed — send the new one to your friends', true, 7000);
+      let login = D().gh.login; if (!login) { login = (await gh.user(ghToken())).login; D().gh.login = login; }
+      code = login + '/' + await gh.create(ghToken(), PROFILE_FILE, prof, 'Kanshō profile — shared with friends');
+      if (parseCode(sh.code)) toast('Your friend code changed — send the new one to your friends', true, 7000);
     }
     Object.assign(sh, { code, hash: h, published: Date.now(), error: '' });
   } catch (e) { sh.error = e.message; }
@@ -2202,7 +2250,10 @@ async function publishNow(force) {
 async function fetchFriend(f, fresh) {
   try {
     let j;
-    try { j = await blobApi.get(f.code); } catch (e) { throw new Error(e.status === 404 ? 'no profile found for that code' : 'couldn’t reach the sharing service (' + e.message + ')'); }
+    const code = parseCode(f.code); if (!code) throw new Error('old friend code — ask them for their new one');
+    const [user, id] = code.split('/');
+    try { j = await gh.raw(user, id, PROFILE_FILE); }
+    catch (e) { try { j = await gh.read(id, PROFILE_FILE, ghToken()); } catch (e2) { throw new Error(e2.status === 404 ? 'no profile found for that code' : e2.message); } }
     if (j.deleted) throw new Error('they stopped sharing');
     if (j.app !== 'kansho' || !Array.isArray(j.watched)) throw new Error('that code isn’t a Kanshō profile');
     f.snap = j; f.name = j.name || f.name; f.error = '';
@@ -2257,10 +2308,11 @@ async function viewFriends() {
     const feed = fr.flatMap(f => friendActivity(f, 40)).sort((a, b) => b.t - a.t).slice(0, 40);
     V.innerHTML = `<h1 class="pt">Friends</h1><p class="lede">See what your friends are watching. They need Kanshō too — send them the app, then swap friend codes.</p>
     <div class="fshare">
-      <div class="fcard"><h3>Your friend code</h3>${sh.enabled && sh.code ? `
+      <div class="fcard"><h3>Your friend code</h3>${sh.enabled && parseCode(sh.code) ? `
         <div class="fcode"><code id="myCode">${esc(fmtCode(sh.code))}</code><button class="btn" id="cpCode">Copy</button><button class="btn" id="cpInvite">Copy invite message</button></div>
         <p style="margin:0">${sh.error ? `<span style="color:#f3b9c4">Couldn’t update: ${esc(sh.error)}</span> · ` : ''}Shared ${ago(sh.published)} · updates automatically · <a href="#" id="stopShare" style="color:var(--muted);text-decoration:underline">Stop sharing</a></p>`
-      : sh.enabled ? `<p>${sh.error ? `<span style="color:#f3b9c4">${esc(sh.error)}</span>` : 'Creating your code…'}</p><button class="btn pri" id="startShare">Try again</button>`
+      : sh.enabled && parseCode(sh.code) === '' && sh.code ? `<p>Friend codes moved to GitHub — your old one stopped working.</p><button class="btn pri" id="startShare">Get a new friend code</button>`
+    : sh.enabled ? `<p>${sh.error ? `<span style="color:#f3b9c4">${esc(sh.error)}</span>` : 'Creating your code…'}</p><button class="btn pri" id="startShare">Try again</button>`
       : `<p>Share your watched list, ratings, diary, reviews and watchlist so friends can follow along. Anyone you give the code to can see them.</p><button class="btn pri" id="startShare">Start sharing</button>`}</div>
       <div class="fcard"><h3>Add a friend</h3><p>Paste the code your friend sees on their own Friends tab.</p>
         <div class="fadd"><input type="text" id="addCode" placeholder="Friend code" autocomplete="off" spellcheck="false"><button class="btn pri" id="addBtn">${ic('plus')} Add</button></div></div>
@@ -2270,10 +2322,12 @@ async function viewFriends() {
     ${fr.length ? sec('New from friends', feed.length ? `<div class="feed">${feed.map(feedRow).join('')}</div>` : '<p class="muted">Nothing logged by your friends yet.</p>')
       : '<div class="empty">No friends yet. Give a friend the Kanshō app, then add each other’s codes above.</div>'}`;
     const $ = s => V.querySelector(s);
-    $('#startShare') && ($('#startShare').onclick = async () => { d.share.enabled = true; d.share.error = ''; Store.save(); draw(); await publishNow(true); });
+    $('#startShare') && ($('#startShare').onclick = async () => {
+      if (!ghToken() && !await askToken('Your shared profile is kept as a Gist on your GitHub account, so friends can read it with your code.')) return;
+      d.share.enabled = true; d.share.error = ''; if (!parseCode(d.share.code)) d.share.code = ''; Store.save(); draw(); await publishNow(true); });
     $('#stopShare') && ($('#stopShare').onclick = ev => { ev.preventDefault(); confirmBox('Stop sharing? Your friends won’t see your updates any more, and your code will stop working.', 'Stop sharing', async () => {
       const code = d.share.code; d.share = { enabled: false, code: '' }; Store.save(); draw();
-      try { await blobApi.del(code); } catch (e) { try { await blobApi.put(code, { app: 'kansho', deleted: true }); } catch (_) {} }
+      const c = parseCode(code); if (c) { try { await gh.remove(c.split('/')[1], ghToken()); } catch (e) { try { await gh.write(c.split('/')[1], PROFILE_FILE, { app: 'kansho', deleted: true }, ghToken()); } catch (_) {} } }
       toast('Sharing stopped'); }); });
     $('#cpCode') && ($('#cpCode').onclick = () => copyText(d.share.code, 'Code copied'));
     $('#cpInvite') && ($('#cpInvite').onclick = () => copyText(`Add me on Kanshō! My friend code is ${fmtCode(d.share.code)}`, 'Invite copied — paste it to your friend'));
