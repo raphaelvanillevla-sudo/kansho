@@ -35,7 +35,7 @@ code{background:var(--card);padding:1px 6px;border-radius:4px;font-size:13px}
 #nav a.spotlink:hover{color:#ffd08a}
 .brand{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .brand b{color:var(--amber)}
-#nav{display:flex;gap:16px;flex-wrap:wrap}
+#nav{display:flex;gap:14px;flex-wrap:wrap}
 #nav a{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 0;border-bottom:2px solid transparent}
 #nav a:hover{color:var(--text)}
 #nav a.on{color:var(--text);border-color:var(--amber)}
@@ -485,6 +485,61 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
 .cspot .ic{width:14px;height:14px}
 .mob,#tabbar,#libnav{display:none}
 
+/* watching + priority */
+.badges i.wa{color:var(--amber)}
+.act4{grid-template-columns:repeat(4,1fr)}
+.act4 button .ic{width:26px;height:26px}
+.act3 button.on.wa{color:var(--amber)}
+.qa button.on.wa{color:var(--amber);border-color:rgba(255,179,64,.5)}
+.dqb button.on.wa{color:var(--amber)}
+.sbtn.on.wa{background:var(--amber);border-color:var(--amber);color:#1d1404}
+.aprog{padding:12px 14px;border-bottom:1px solid var(--line)}
+.aprog small{display:block;color:var(--muted);font-size:12px;margin-bottom:8px;text-align:center}
+.epc{display:flex;align-items:center;justify-content:center;gap:10px}
+.epc b{font-family:var(--serif);font-size:24px;min-width:34px;text-align:center}
+.epc span{color:var(--muted);font-size:13px}
+.epc button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--text);font-size:19px;cursor:pointer;line-height:1;padding:0 0 2px}
+.epc button:hover{border-color:var(--amber);color:var(--amber)}
+.pbar{display:block;height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:8px 0 4px}
+.pbar i{display:block;height:100%;background:var(--amber);border-radius:2px}
+.cap .pbar{margin:0 0 5px}
+.cap .ct,.cap .ce{display:block;overflow:hidden;text-overflow:ellipsis}
+.cap .ct{color:#cfd6de}
+.cap .dual{margin-top:2px}
+.wpost{width:70px}
+.seg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.seg button{border:1px solid var(--line2);background:var(--card);color:var(--muted);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;cursor:pointer}
+.seg button.on.p3{background:var(--rose);border-color:var(--rose);color:#2a0710}
+.seg button.on.p2{background:var(--amber);border-color:var(--amber);color:#1d1404}
+.seg button.on.p1{background:var(--sky);border-color:var(--sky);color:#04203a}
+.prio{display:inline-flex;align-items:center;gap:2px;padding:3px 8px 3px 6px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:none;background:rgba(10,12,15,.86);border:1px solid var(--line2);color:var(--muted);vertical-align:middle;white-space:nowrap}
+.prio[data-prio]{cursor:pointer}
+.prio[data-prio]:hover{border-color:var(--text)}
+.prio i{width:3px;border-radius:1px;background:var(--line2);display:inline-block}
+.prio i:nth-child(1){height:6px}.prio i:nth-child(2){height:9px}.prio i:nth-child(3){height:12px;margin-right:4px}
+.prio.p3{color:var(--rose)}.prio.p3 i{background:var(--rose)}
+.prio.p2{color:var(--amber)}.prio.p2 i:nth-child(-n+2){background:var(--amber)}
+.prio.p1{color:var(--sky)}.prio.p1 i:nth-child(1){background:var(--sky)}
+.wlc>.prio{position:absolute;left:6px;top:6px;z-index:3}
+.sech h2 .prio{font-size:12px;padding:4px 10px 4px 8px}
+.pcount{color:var(--dim);margin-left:6px;letter-spacing:0}
+.wtag{display:inline-flex;align-items:center;gap:5px;color:var(--amber);font-size:12px}
+.wtag svg{width:11px;height:11px}
+.wlist{display:flex;flex-direction:column}
+.wrow{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.wrow h3{margin:0;font-family:var(--serif);font-size:19px}
+.wrow h3 a:hover{color:var(--amber)}
+.wrow h3 span{font-family:var(--sans);color:var(--muted);font-weight:400;font-size:13px;margin-left:8px}
+.wmeta{color:var(--muted);font-size:13px;margin-top:3px}
+.wrow .pbar{max-width:420px}
+.wbtns{display:flex;align-items:center;gap:12px}
+.wbtns .btn .ic{width:15px;height:15px}
+@media (max-width:700px){
+ .wrow{grid-template-columns:56px minmax(0,1fr);gap:4px 12px}
+ .wpost{width:56px}
+ .wbtns{grid-column:1/-1;justify-content:space-between;padding-top:6px}
+ .act4 span{font-size:11px}
+}
 /* ---------- phone ---------- */
 @media (max-width:700px){
  body{font-size:15px;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
@@ -608,6 +663,7 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
     <a href="#/" data-r="home">Home</a>
     <a href="#/discover" data-r="discover">Discover</a>
     <a href="#/watched" data-r="watched">Anime</a>
+    <a href="#/watching" data-r="watching">Watching</a>
     <a href="#/diary" data-r="diary">Diary</a>
     <a href="#/watchlist" data-r="watchlist">Watchlist</a>
     <a href="#/lists" data-r="lists">Lists</a>
@@ -621,7 +677,7 @@ label.fld{display:block;font-size:12px;color:var(--muted);margin-bottom:14px;let
   <a class="iconbtn mob" id="meBtn" href="#/profile" title="Profile"></a>
   <button class="iconbtn" id="settingsBtn" title="Settings & data"></button>
 </div></header>
-<nav id="libnav"><a href="#/watched" data-r="watched">Anime</a><a href="#/diary" data-r="diary">Diary</a><a href="#/watchlist" data-r="watchlist">Watchlist</a><a href="#/lists" data-r="lists">Lists</a></nav>
+<nav id="libnav"><a href="#/watched" data-r="watched">Anime</a><a href="#/watching" data-r="watching">Watching</a><a href="#/diary" data-r="diary">Diary</a><a href="#/watchlist" data-r="watchlist">Watchlist</a><a href="#/lists" data-r="lists">Lists</a></nav>
 <main><div id="view"></div></main>
 <nav id="tabbar">
   <a href="#/" data-r="home"><i data-ic="home"></i><span>Home</span></a>
@@ -670,6 +726,7 @@ const ICON = {
   library: S('<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="9" y="4" width="4" height="16" rx="1"/><path d="m15.5 5.2 3.8-1 3.2 15.5-3.8 1z"/>'),
   users: S('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.7c2 .7 3.2 2.5 3.6 5.3"/>'),
   user: S('<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5"/>'),
+  play: S('<path d="M7 4.5v15l13-7.5z"/>', 1),
   dice: S('<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>'),
 };
 const ic = (n, c = '') => `<span class="ic ${c}">${ICON[n]}</span>`;
@@ -684,7 +741,7 @@ function toast(msg, err, ms = 2600) {
 /* ---------- storage ---------- */
 const DEFAULT = () => ({ version: 1, profile: { name: '', bio: '' }, settings: { titles: 'english' },
   anime: {}, status: {}, entries: [], watchlist: [], favorites: [null, null, null, null], lists: [],
-  friends: [], share: { enabled: false, code: '' }, sync: {}, gh: {} });
+  friends: [], share: { enabled: false, code: '' }, sync: {}, gh: {}, watching: [] });
 let APP = { native: false, dataDir: '' };   // filled from /api/info when running as the desktop app
 const Store = {
   mode: 'local', data: DEFAULT(), timer: null,
@@ -719,6 +776,7 @@ function fixData() {
   if (!Array.isArray(d.lists)) d.lists = [];
   if (!Array.isArray(d.favorites)) d.favorites = [];
   if (!Array.isArray(d.friends)) d.friends = [];
+  if (!Array.isArray(d.watching)) d.watching = [];
   if (!d.share || typeof d.share !== 'object') d.share = { enabled: false, code: '' };
   if (!d.sync || typeof d.sync !== 'object') d.sync = {};
   if (!d.gh || typeof d.gh !== 'object') d.gh = {};
@@ -747,6 +805,39 @@ function toggleWL(id) {
   else { D().watchlist.push({ id: +id, added: Date.now() }); toast('Added to watchlist'); }
   Store.save();
 }
+/* ---------- watching (started, not finished) + watchlist priority ---------- */
+const watchingOf = id => D().watching.find(w => w.id === +id);
+const isWatching = id => !!watchingOf(id);
+function startWatching(id) { if (!watchingOf(id)) D().watching.push({ id: +id, started: Date.now(), ep: 0, updated: Date.now() }); removeWL(id); Store.save(); }
+function stopWatching(id) { D().watching = D().watching.filter(w => w.id !== +id); Store.save(); }
+function toggleWatching(id) { if (isWatching(id)) { stopWatching(id); toast('Removed from Watching'); } else { startWatching(id); toast('Added to Watching'); } }
+function setEp(id, ep) {
+  const w = watchingOf(id); if (!w) return;
+  const a = getA(id), max = a?.episodes || 99999, was = w.ep || 0;
+  w.ep = Math.max(0, Math.min(max, ep)); w.updated = Date.now(); Store.save();
+  if (a?.episodes && w.ep >= a.episodes && was < a.episodes) offerFinish(id);
+}
+function offerFinish(id) {
+  const a = getA(id) || { id };
+  openModal(`${mhead('All episodes watched')}<div class="mbody"><p style="margin:0">That’s every episode of <b>${esc(title(a))}</b>. Mark it as watched?</p></div>
+    <div class="mfoot"><button class="btn" data-close>Not yet</button><span style="display:flex;gap:8px"><button class="btn" id="ofW">Mark watched</button><button class="btn pri" id="ofL">Rate &amp; review…</button></span></div>`, (m, close) => {
+    m.querySelector('#ofW').onclick = () => { close(); finishWatching(a, false); };
+    m.querySelector('#ofL').onclick = () => { close(); openLog(a); };
+  }, 'sm');
+}
+function finishWatching(a, quiet) {
+  ensure(a); stopWatching(a.id);
+  setSt(a.id, { watched: true, ts: st(a.id).ts || Date.now() }); removeWL(a.id); Store.save();
+  if (!quiet) toast(`Finished ${title(a)}`); refresh();
+}
+const PRIO = { 3: ['Must watch', 'p3'], 2: ['Soon', 'p2'], 1: ['Someday', 'p1'] };
+const wlItem = id => D().watchlist.find(w => w.id === +id);
+const prioOf = id => wlItem(id)?.prio || 2;
+function setPrio(id, p) { const w = wlItem(id); if (w) { w.prio = p; Store.save(); } }
+const prioPill = (id, p, mine = true) => `<span class="prio ${PRIO[p][1]}" ${mine ? `data-prio="${id}" title="Priority: ${PRIO[p][0]} — click to change"` : `title="${PRIO[p][0]}"`}><i></i><i></i><i></i><b>${PRIO[p][0]}</b></span>`;
+const epText = (w, a) => `Ep ${w.ep || 0}${a?.episodes ? ' / ' + a.episodes : ''}`;
+const pbar = (w, a) => `<span class="pbar"><i style="width:${a?.episodes ? Math.min(100, Math.round((w.ep || 0) / a.episodes * 100)) : (w.ep ? 8 : 0)}%"></i></span>`;
+
 const isFav = id => D().favorites.includes(+id);
 function toggleFav(a) {
   ensure(a);
@@ -890,7 +981,7 @@ function posterCard(a, o = {}) {
   const s = st(a.id);
   const r = o.entry ? o.entry.rating : s.rating;
   const liked = o.entry ? o.entry.liked : s.liked;
-  const badges = o.badges === false ? '' : `<span class="badges">${s.watched ? `<i class="w">${ICON.eye}</i>` : ''}${inWL(a.id) ? `<i class="wl">${ICON.clock}</i>` : ''}</span>`;
+  const badges = o.badges === false ? '' : `<span class="badges">${isWatching(a.id) ? `<i class="wa">${ICON.play}</i>` : ''}${s.watched ? `<i class="w">${ICON.eye}</i>` : ''}${inWL(a.id) ? `<i class="wl">${ICON.clock}</i>` : ''}</span>`;
   const meta = o.meta === false || !(r || liked) ? '' : `<div class="pm"><span class="stars">${starText(r)}</span>${liked ? `<span class="hl">${ICON.heart}</span>` : ''}</div>`;
   return `<div class="pc"><a class="poster" href="#/anime/${a.id}" title="${esc(title(a))}${a.year ? ' (' + a.year + ')' : ''}"><span class="ph">${esc(title(a))}</span>${a.image ? `<img loading="lazy" src="${esc(src(a.image))}" alt="" onerror="this.remove()">` : ''}${badges}</a>${meta}${o.caption ? `<div class="cap">${o.caption}</div>` : ''}</div>`;
 }
@@ -972,7 +1063,7 @@ function openLog(a, entry) {
       const s = st(a.id);
       const latest = list.filter(x => x.animeId === a.id).sort(byDateDesc)[0];
       setSt(a.id, { watched: true, ts: s.ts || Date.now(), rating: (latest === e && e.rating) ? e.rating : (s.rating || e.rating || 0), liked: e.liked || !!s.liked });
-      removeWL(a.id); Store.save(); close();
+      removeWL(a.id); if (isWatching(a.id)) D().watching = D().watching.filter(w => w.id !== a.id); Store.save(); close();
       toast(entry ? 'Entry updated' : `Logged ${title(a)}`); refresh();
     };
     const del = m.querySelector('#ldel');
@@ -1055,7 +1146,7 @@ async function route(keep) {
   routeId++; refreshFn = null;
   const y = scrollY, { parts, params } = parseHash(), r = parts[0] || 'home';
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === r));
-  const lib = ['watched', 'diary', 'watchlist', 'lists', 'list'].includes(r);
+  const lib = ['watched', 'watching', 'diary', 'watchlist', 'lists', 'list'].includes(r);
   document.querySelectorAll('#tabbar a').forEach(a => a.classList.toggle('on', a.dataset.r === r || (lib && a.dataset.r === 'library') || (r === 'friend' && a.dataset.r === 'friends')));
   document.body.classList.toggle('inlib', lib);
   document.querySelectorAll('#libnav a').forEach(a => a.classList.toggle('on', a.dataset.r === r || (r === 'list' && a.dataset.r === 'lists')));
@@ -1071,6 +1162,7 @@ async function route(keep) {
       case 'anime': await viewAnime(parts[1]); break;
       case 'diary': viewDiary(params); break;
       case 'watched': viewWatched(params); break;
+      case 'watching': viewWatching(); break;
       case 'watchlist': viewWatchlist(params); break;
       case 'lists': viewLists(); break;
       case 'list': viewList(parts[1]); break;
@@ -1096,6 +1188,8 @@ async function viewHome() {
     <p class="lede">${d.entries.length || Object.keys(d.status).length
       ? `You’ve logged <b>${thisYear}</b> ${thisYear === 1 ? 'entry' : 'entries'} in ${yr}, with <b>${wl}</b> waiting on your watchlist.`
       : 'Rate it, review it, add it to your diary and watchlist. Search above, or start from what’s airing.'}</p>
+    ${d.watching.length ? sec('Continue watching', `<div class="row">${[...d.watching].sort((x, y) => (y.updated || 0) - (x.updated || 0)).slice(0, 8).map(w => { const a = d.anime[w.id] || getA(w.id) || { id: w.id };
+      return posterCard(a, { meta: false, badges: false, caption: `${pbar(w, a)}<span class="ct">${esc(title(a))}</span><span class="ce">${epText(w, a)}</span>` }); }).join('')}</div>`, '#/watching', 'All') : ''}
     ${recent.length ? sec('Recently logged', `<div class="row">${recent.map(e => posterCard(d.anime[e.animeId], { entry: e, badges: false })).join('')}</div>`, '#/diary', 'Diary') : ''}
     ${sec('Airing this season', `<div class="grid" id="g1">${skel(12)}</div>`)}
     ${sec('Highest rated of all time', `<div class="grid" id="g2">${skel(12)}</div>`, '#/discover', 'Browse more in Discover')}`;
@@ -1132,7 +1226,7 @@ function searchRow(a) {
   const info = [altTitle(a), a.type, a.episodes ? a.episodes + ' eps' : '', (a.studios || []).join(', ')].filter(Boolean).join(' · ');
   return `<div class="srow">${posterCard(a, { meta: false, badges: false })}
     <div><h3><a href="#/anime/${a.id}">${esc(title(a))}</a>${a.year ? `<span>${a.year}</span>` : ''}</h3><p>${esc(info)}</p>${s.rating ? `<div class="stars" style="margin-top:4px">${starText(s.rating)}</div>` : ''}</div>
-    <div class="qa"><button class="w ${s.watched ? 'on' : ''}" data-act="w" data-id="${a.id}" title="Watched">${ICON.eye}</button><button class="l ${s.liked ? 'on' : ''}" data-act="l" data-id="${a.id}" title="Like">${ICON.heart}</button><button class="wl ${inWL(a.id) ? 'on' : ''}" data-act="wl" data-id="${a.id}" title="Watchlist">${ICON.clock}</button></div></div>`;
+    <div class="qa"><button class="w ${s.watched ? 'on' : ''}" data-act="w" data-id="${a.id}" title="Watched">${ICON.eye}</button><button class="wa ${isWatching(a.id) ? 'on' : ''}" data-act="wa" data-id="${a.id}" title="Watching">${ICON.play}</button><button class="l ${s.liked ? 'on' : ''}" data-act="l" data-id="${a.id}" title="Like">${ICON.heart}</button><button class="wl ${inWL(a.id) ? 'on' : ''}" data-act="wl" data-id="${a.id}" title="Watchlist">${ICON.clock}</button></div></div>`;
 }
 
 async function viewAnime(id) {
@@ -1193,21 +1287,28 @@ function bindAnime(a) {
 function renderActions(a) {
   const el = document.getElementById('actions'); if (!el) return;
   const s = st(a.id);
-  el.innerHTML = `<div class="act3">
+  const wa = watchingOf(a.id), wl = inWL(a.id);
+  el.innerHTML = `<div class="act3 act4">
       <button class="w ${s.watched ? 'on' : ''}" data-act="w" data-id="${a.id}">${ic('eye')}<span>${s.watched ? 'Watched' : 'Watch'}</span></button>
+      <button class="wa ${wa ? 'on' : ''}" data-act="wa" data-id="${a.id}">${ic('play')}<span>Watching</span></button>
       <button class="l ${s.liked ? 'on' : ''}" data-act="l" data-id="${a.id}">${ic('heart')}<span>${s.liked ? 'Liked' : 'Like'}</span></button>
-      <button class="wl ${inWL(a.id) ? 'on' : ''}" data-act="wl" data-id="${a.id}">${ic('clock')}<span>Watchlist</span></button></div>
+      <button class="wl ${wl ? 'on' : ''}" data-act="wl" data-id="${a.id}">${ic('clock')}<span>Watchlist</span></button></div>
+    ${wa ? `<div class="aprog"><small>Your progress</small><div class="epc"><button data-ep="-1" title="One episode back">−</button><b>${wa.ep || 0}</b><span>/ ${a.episodes || '?'} episodes</span><button data-ep="1" title="Watched one more episode">+</button></div>${pbar(wa, a)}<button class="btn" id="finBtn" style="margin-top:10px;width:100%;justify-content:center">${ic('eye')} Finished it</button></div>` : ''}
+    ${wl ? `<div class="aprog"><small>Watchlist priority</small><div class="seg">${[3, 2, 1].map(p => `<button data-setprio="${p}" class="${PRIO[p][1]} ${prioOf(a.id) === p ? 'on' : ''}">${PRIO[p][0]}</button>`).join('')}</div></div>` : ''}
     <div class="rate"><small>${s.rating ? 'Rated' : 'Rate'}</small><div id="rateMount"></div></div>
     <button class="alink" id="logBtn">${s.watched ? 'Review or log again…' : 'Review or log…'}</button>
     <button class="alink" id="listBtn">Add to lists…</button>
     <button class="alink" id="favBtn">${isFav(a.id) ? 'Remove from favourites' : 'Add to favourites'}</button>`;
   el.querySelector('#rateMount').append(starInput(s.rating || 0, v => {
     ensure(a);
-    setSt(a.id, v ? { rating: v, watched: true, ts: st(a.id).ts || Date.now() } : { rating: 0 });
+    setSt(a.id, v ? { rating: v, watched: isWatching(a.id) ? !!st(a.id).watched : true, ts: st(a.id).ts || Date.now() } : { rating: 0 });
     if (v) { removeWL(a.id); Store.save(); }
     renderActions(a);
   }));
   el.querySelector('#logBtn').onclick = () => openLog(a);
+  el.querySelectorAll('[data-ep]').forEach(b => b.onclick = () => { setEp(a.id, (watchingOf(a.id)?.ep || 0) + +b.dataset.ep); renderActions(a); });
+  const fin = el.querySelector('#finBtn'); if (fin) fin.onclick = () => openLog(a);
+  el.querySelectorAll('[data-setprio]').forEach(b => b.onclick = () => { setPrio(a.id, +b.dataset.setprio); renderActions(a); });
   el.querySelector('#listBtn').onclick = () => openAddToList(a);
   el.querySelector('#favBtn').onclick = () => { toggleFav(a); renderActions(a); };
 }
@@ -1243,7 +1344,7 @@ let hoverTile = null;
 function dtile(a, rank) {
   return `<div class="dtile" data-aid="${a.id}">
     <div class="dp"><a class="poster" href="#/anime/${a.id}" draggable="false" title="${esc(title(a))}${a.year ? ' (' + a.year + ')' : ''}"><span class="ph">${esc(title(a))}</span>${a.image ? `<img loading="lazy" draggable="false" src="${esc(src(a.image))}" alt="" onerror="this.remove()">` : ''}${rank ? `<span class="drank">${rank}</span>` : ''}<span class="dseen">${ICON.eye}</span></a>
-      <div class="dq"><div class="dqb"><button class="w" data-act="w" data-id="${a.id}" title="Watched (W)">${ICON.eye}</button><button class="l" data-act="l" data-id="${a.id}" title="Like (L)">${ICON.heart}</button><button class="wl" data-act="wl" data-id="${a.id}" title="Watchlist (Q)">${ICON.clock}</button><button class="fs" data-spot="${a.id}" title="Spotlight (F)">${ICON.expand}</button></div>
+      <div class="dq"><div class="dqb"><button class="w" data-act="w" data-id="${a.id}" title="Watched (W)">${ICON.eye}</button><button class="wa" data-act="wa" data-id="${a.id}" title="Watching (C)">${ICON.play}</button><button class="l" data-act="l" data-id="${a.id}" title="Like (L)">${ICON.heart}</button><button class="wl" data-act="wl" data-id="${a.id}" title="Watchlist (Q)">${ICON.clock}</button><button class="fs" data-spot="${a.id}" title="Spotlight (F)">${ICON.expand}</button></div>
       <div class="qstars" data-id="${a.id}">${[1, 2, 3, 4, 5].map(i => `<span data-i="${i}">★</span>`).join('')}</div></div></div>
     <div class="dcap"><span class="dt">${esc(title(a))}</span><span class="dm">${a.year || ''}<span class="stars"></span><span class="hl" hidden>${ICON.heart}</span></span></div></div>`;
 }
@@ -1252,6 +1353,7 @@ function syncTile(t) {
   const id = +t.dataset.aid, s = st(id);
   t.classList.toggle('watched', !!s.watched);
   t.querySelector('.dqb .w').classList.toggle('on', !!s.watched);
+  t.querySelector('.dqb .wa').classList.toggle('on', isWatching(id));
   t.querySelector('.dqb .l').classList.toggle('on', !!s.liked);
   t.querySelector('.dqb .wl').classList.toggle('on', inWL(id));
   paintStars(t.querySelector('.qstars'), s.rating || 0);
@@ -1268,7 +1370,7 @@ function rateQuick(id, v) {
   const a = getA(id); if (!a) return;
   ensure(a);
   const nv = v === (st(id).rating || 0) ? 0 : v;
-  setSt(id, nv ? { rating: nv, watched: true, ts: st(id).ts || Date.now() } : { rating: 0 });
+  setSt(id, nv ? { rating: nv, watched: isWatching(id) ? !!st(id).watched : true, ts: st(id).ts || Date.now() } : { rating: 0 });
   if (nv) { removeWL(id); Store.save(); }
   toast(nv ? `${title(a)} — ${starText(nv)}` : 'Rating removed', false, 1400);
   refresh();
@@ -1278,7 +1380,7 @@ function viewDiscover() {
   const my = routeId, d = D();
   V.innerHTML = `<div class="phead"><div><h1 class="pt">Discover</h1><p class="lede">Flick through the best and most-watched anime and mark what you’ve seen.</p></div>
       <div class="tools"><button class="btn pri" id="dSpot">${ic('expand')} Spotlight</button><span class="dcount" id="dcount"></span><label class="check"><input type="checkbox" id="hideW" ${d.settings.hideWatched ? 'checked' : ''}> Hide watched</label></div></div>
-    <div class="dkeys"><span>Hover a poster, then</span><span><kbd>W</kbd>watched</span><span><kbd>L</kbd>like</span><span><kbd>Q</kbd>watchlist</span><span><kbd>1</kbd>–<kbd>5</kbd>stars</span><span><kbd>0</kbd>clear</span><span><kbd>F</kbd>spotlight</span><span>· drag or use ‹ › to scroll</span></div>
+    <div class="dkeys"><span>Hover a poster, then</span><span><kbd>W</kbd>watched</span><span><kbd>L</kbd>like</span><span><kbd>C</kbd>watching</span><span><kbd>Q</kbd>watchlist</span><span><kbd>1</kbd>–<kbd>5</kbd>stars</span><span><kbd>0</kbd>clear</span><span><kbd>F</kbd>spotlight</span><span>· drag or use ‹ › to scroll</span></div>
     ${ROWS.map(r => `<section class="crow"><div class="sech"><h2>${r.title}${r.sub ? `<small>${r.sub}</small>` : ''}</h2><div class="carr"><button class="cspot" data-rowspot="${r.key}" title="Browse this row in Spotlight">${ic('expand')}<span>Spotlight</span></button><button class="cbtn" data-dir="-1" data-row="${r.key}" title="Back">‹</button><button class="cbtn" data-dir="1" data-row="${r.key}" title="More">›</button></div></div>
       <div class="ctrack" id="ct-${r.key}">${'<div class="dskel"><div class="skel"></div></div>'.repeat(9)}</div></section>`).join('')}`;
   refreshFn = syncDiscover; syncDiscover();
@@ -1392,17 +1494,43 @@ function viewWatched(p) {
 
 function viewWatchlist(p) {
   setTitle('Watchlist');
-  const d = D(), sort = p.sort || 'added';
-  let items = d.watchlist.map(w => ({ ...w, a: d.anime[w.id] || { id: w.id } }));
-  const sorts = { added: (x, y) => y.added - x.added, oldest: (x, y) => x.added - y.added, title: (x, y) => title(x.a).localeCompare(title(y.a)),
+  const d = D(), sort = p.sort || 'prio';
+  let items = d.watchlist.map(w => ({ ...w, p: w.prio || 2, a: d.anime[w.id] || { id: w.id } }));
+  const sorts = { prio: (x, y) => y.p - x.p || y.added - x.added, added: (x, y) => y.added - x.added, oldest: (x, y) => x.added - y.added, title: (x, y) => title(x.a).localeCompare(title(y.a)),
     year: (x, y) => (y.a.year || 0) - (x.a.year || 0), mal: (x, y) => (y.a.score || 0) - (x.a.score || 0) };
-  items.sort(sorts[sort] || sorts.added);
-  V.innerHTML = `<div class="phead"><div><h1 class="pt">Watchlist</h1><p class="lede">${items.length} anime you want to see.</p></div>
-    <div class="tools">${items.length > 1 ? `<button class="btn" id="pick">${ic('dice')} Pick one for me</button>` : ''}
-    ${sortSelect([['added', 'Recently added'], ['oldest', 'Oldest first'], ['title', 'Title'], ['year', 'Release year'], ['mal', 'MAL score']], sort, '#/watchlist')}</div></div>
-    ${items.length ? `<div class="grid lg">${items.map(x => posterCard(x.a, { badges: false, caption: esc(title(x.a)) })).join('')}</div>` : '<div class="empty">Your watchlist is empty. Hit the clock on anything you want to watch later.</div>'}`;
+  items.sort(sorts[sort] || sorts.prio);
+  const card = x => `<div class="pc wlc">${prioPill(x.id, x.p)}${posterCard(x.a, { badges: false, caption: esc(title(x.a)) })}</div>`;
+  const counts = [3, 2, 1].map(p => items.filter(x => x.p === p).length);
+  const body = !items.length ? '<div class="empty">Your watchlist is empty. Hit the clock on anything you want to watch later.</div>'
+    : sort === 'prio' ? [3, 2, 1].filter(p => items.some(x => x.p === p)).map(p => `<section class="sec"><div class="sech"><h2>${prioPill(0, p, false)} <span class="pcount">${items.filter(x => x.p === p).length}</span></h2></div><div class="grid lg">${items.filter(x => x.p === p).map(card).join('')}</div></section>`).join('')
+    : `<div class="grid lg">${items.map(card).join('')}</div>`;
+  V.innerHTML = `<div class="phead"><div><h1 class="pt">Watchlist</h1><p class="lede">${items.length} anime you want to see${items.length ? ` — ${counts[0]} must watch, ${counts[1]} soon, ${counts[2]} someday` : ''}. Click a priority tag to change it.</p></div>
+    <div class="tools">${items.length > 1 ? `<button class="btn" id="pick" title="Higher priority = more likely">${ic('dice')} Pick one for me</button>` : ''}
+    ${sortSelect([['prio', 'Priority'], ['added', 'Recently added'], ['oldest', 'Oldest first'], ['title', 'Title'], ['year', 'Release year'], ['mal', 'MAL score']], sort, '#/watchlist')}</div></div>${body}`;
   const pk = document.getElementById('pick');
-  if (pk) pk.onclick = () => { const x = items[Math.floor(Math.random() * items.length)]; toast(`Tonight: ${title(x.a)}`); location.hash = '#/anime/' + x.id; };
+  if (pk) pk.onclick = () => {   // weighted: must watch ×4, soon ×2, someday ×1
+    const bag = items.flatMap(x => Array(x.p === 3 ? 4 : x.p === 2 ? 2 : 1).fill(x)), x = bag[Math.floor(Math.random() * bag.length)];
+    toast(`Tonight: ${title(x.a)}`); location.hash = '#/anime/' + x.id;
+  };
+}
+function viewWatching() {
+  setTitle('Watching');
+  const d = D(), items = [...d.watching].sort((x, y) => (y.updated || 0) - (x.updated || 0)).map(w => ({ w, a: d.anime[w.id] || getA(w.id) || { id: w.id } }));
+  V.innerHTML = `<div class="phead"><div><h1 class="pt">Watching</h1><p class="lede">${items.length ? `${items.length} anime you’ve started and not finished. Tap + after each episode.` : 'Anime you’ve started but haven’t finished.'}</p></div></div>
+    ${items.length ? `<div class="wlist">${items.map(({ w, a }) => `<div class="wrow" data-wid="${a.id}">
+      <div class="wpost">${posterCard(a, { meta: false, badges: false })}</div>
+      <div class="wmid"><h3><a href="#/anime/${a.id}">${esc(title(a))}</a>${a.year ? `<span>${a.year}</span>` : ''}</h3>
+        <div class="wmeta">${epText(w, a)} · started ${ago(w.started)}${w.updated && w.updated !== w.started ? ` · last episode ${ago(w.updated)}` : ''}</div>${pbar(w, a)}</div>
+      <div class="wbtns"><div class="epc"><button data-wep="-1" title="One back">−</button><b>${w.ep || 0}</b><button data-wep="1" title="Watched one more">+</button></div>
+        <button class="btn" data-wfin title="Finished — mark as watched">${ic('eye')}<span>Finished</span></button><button class="iconbtn" data-wstop title="Stop watching (remove)">${ic('x')}</button></div></div>`).join('')}</div>`
+    : '<div class="empty">Nothing here yet. On any anime, hit <b>Watching</b> (▶) when you start it — or press C on a poster in Discover.</div>'}`;
+  V.querySelectorAll('.wrow').forEach(row => {
+    const id = +row.dataset.wid, a = getA(id) || d.anime[id] || { id };
+    row.querySelectorAll('[data-wep]').forEach(b => b.onclick = () => { setEp(id, (watchingOf(id)?.ep || 0) + +b.dataset.wep); if (!document.querySelector('.mback')) viewWatching(); });
+    row.querySelector('[data-wfin]').onclick = () => openLog(a);
+    row.querySelector('[data-wstop]').onclick = () => confirmBox(`Stop watching ${esc(title(a))}? It just leaves this list.`, 'Remove', () => { stopWatching(id); viewWatching(); });
+  });
+  refreshFn = viewWatching;
 }
 
 function viewLists() {
@@ -1555,7 +1683,7 @@ function openSettings() {
       <p class="muted">${Store.mode === 'server' ? `Saved to <code>kansho_data.json</code>${APP.dataDir ? ` in <code>${esc(APP.dataDir)}</code>` : ''}, plus a dated copy each day in the <code>backups</code> folder. Exports go to the <code>exports</code> folder.` : `Saved on this ${/iPhone|iPad/.test(navigator.userAgent) ? 'iPhone' : 'device'}${D().sync.code ? ', and in your encrypted sync copy' : ' only — turn on sync above, or export a backup now and then'}.`}</p>
       <div class="btns"><button class="btn" id="exp">Export backup (.json)</button><label class="btn">Restore backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div></div>
     <div class="setg"><h4>Import from MyAnimeList</h4>
-      <p class="muted">Export your list at myanimelist.net/panel.php?go=export, then pick the .xml.gz (or unzipped .xml) here. Completed → watched, with your score and finish date as a diary entry. Plan to Watch → watchlist. Existing entries are kept.</p>
+      <p class="muted">Export your list at myanimelist.net/panel.php?go=export, then pick the .xml.gz (or unzipped .xml) here. Completed → watched, with your score and finish date as a diary entry. Plan to Watch → watchlist (with its priority), Watching → Watching with your episode count. Existing entries are kept.</p>
       <label class="btn">Choose MAL export<input type="file" accept=".xml,.gz" id="mal" hidden></label></div>
     <div class="setg"><h4>Posters & details</h4><p class="muted">${missing()} anime in your library are missing posters or details.</p><button class="btn" id="bf" ${missing() ? '' : 'disabled'}>Fetch missing info</button></div>
   </div>`, (m, close) => {
@@ -1603,7 +1731,11 @@ function importMAL(text) {
         d.entries.push({ id: uid(), animeId: id, date: fin, rating: score, liked: false, review: '', rewatch: false, spoiler: false, created: Date.now(), source: 'mal' }); entries++;
       }
       removeWL(id);
-    } else if (status === 'Plan to Watch' && !inWL(id) && !st(id).watched) { d.watchlist.push({ id, added: Date.now() }); wl++; }
+    } else if (status === 'Plan to Watch' && !inWL(id) && !st(id).watched) {
+      const mp = g(n, 'my_priority').toUpperCase(); d.watchlist.push({ id, added: Date.now(), ...(mp === 'HIGH' ? { prio: 3 } : mp === 'LOW' ? { prio: 1 } : {}) }); wl++;
+    } else if (status === 'Watching' && !isWatching(id)) {
+      d.watching.push({ id, started: Date.now(), ep: +g(n, 'my_watched_episodes') || 0, updated: Date.now() }); removeWL(id); wl++;
+    }
   }
   Store.save();
   return { watched, entries, wl };
@@ -1709,6 +1841,7 @@ function syncView(d) {
     profile: d.profile, settings, anime: d.anime, status: d.status,
     entries: Object.fromEntries(d.entries.map(e => [e.id, e])),
     watchlist: Object.fromEntries(d.watchlist.map(w => [String(w.id), w])),
+    watching: Object.fromEntries(d.watching.map(w => [String(w.id), w])),
     favorites: d.favorites,
     lists: Object.fromEntries(d.lists.map(l => [l.id, l])),
     friends: Object.fromEntries(d.friends.map(f => [f.code, { code: f.code, added: f.added || 0, name: f.name || '' }])),
@@ -1736,6 +1869,7 @@ function applyView(d, v) {
   d.anime = v.anime || {}; d.status = v.status || {};
   d.entries = Object.values(v.entries || {});
   d.watchlist = Object.values(v.watchlist || {}).sort((a, b) => (a.added || 0) - (b.added || 0));
+  d.watching = Object.values(v.watching || {}).sort((a, b) => (a.started || 0) - (b.started || 0));
   d.favorites = v.favorites || [null, null, null, null];
   d.lists = Object.values(v.lists || {}).sort((a, b) => (a.created || 0) - (b.created || 0));
   const old = new Map(d.friends.map(f => [f.code, f]));
@@ -2009,7 +2143,7 @@ function makeSource(kind, type, opts = {}) {
 
 let SP = null;   // the open spotlight
 const spSettings = () => (D().settings.spot = Object.assign({ kind: 'most', type: '', skip: false, auto: true, full: true }, D().settings.spot || {}));
-const isSeen = a => st(a.id).watched || inWL(a.id);
+const isSeen = a => st(a.id).watched || inWL(a.id) || isWatching(a.id);
 
 async function setFullscreenWindow(on) {
   if (APP.native) {
@@ -2125,9 +2259,10 @@ function spAct(what, val) {
   if (what === 'w') { const was = st(id).watched; ACTIONS.w(id, a); spRender(true); if (!was && st(id).watched && auto) spFlash('Watched ✓', () => spGo(1)); }
   if (what === 'wl') { const was = inWL(id); ACTIONS.wl(id, a); spRender(true); if (!was && inWL(id) && auto) spFlash('On your watchlist', () => spGo(1)); }
   if (what === 'l') { ACTIONS.l(id, a); spRender(true); }
+  if (what === 'wa') { const was = isWatching(id); ACTIONS.wa(id, a); spRender(true); if (!was && isWatching(id) && auto) spFlash('Watching ▶', () => spGo(1)); }
   if (what === 'rate') {
     ensure(a); const nv = val === (st(id).rating || 0) ? 0 : val;
-    setSt(id, nv ? { rating: nv, watched: true, ts: st(id).ts || Date.now() } : { rating: 0 });
+    setSt(id, nv ? { rating: nv, watched: isWatching(id) ? !!st(id).watched : true, ts: st(id).ts || Date.now() } : { rating: 0 });
     if (nv) { removeWL(id); Store.save(); }
     spRender(true); if (nv && auto) spFlash(starText(nv), () => spGo(1));
   }
@@ -2150,6 +2285,7 @@ function spRender(soft) {
     stage.querySelector('[data-sa=w] .lb').textContent = s.watched ? 'Watched' : 'Watched?';
     stage.querySelector('[data-sa=wl]').classList.toggle('on', wl);
     stage.querySelector('[data-sa=l]').classList.toggle('on', !!s.liked);
+    stage.querySelector('[data-sa=wa]').classList.toggle('on', isWatching(a.id));
     const b = stage.querySelector('.sbadge'); b.className = 'sbadge' + (s.watched ? ' show' : wl ? ' show wl' : ''); b.textContent = s.watched ? 'Watched' : 'On watchlist';
     const m = stage.querySelector('#spStars'); m.innerHTML = ''; m.append(starInput(s.rating || 0, v => spAct('rate', v || s.rating || 0)));
     stage.querySelector('#spPrev').disabled = SP.i === 0;
@@ -2172,6 +2308,7 @@ function spRender(soft) {
       <div class="sacts">
         <button class="sbtn w ${s.watched ? 'on' : ''}" data-sa="w">${ic('eye')}<span class="lb">${s.watched ? 'Watched' : 'Watched?'}</span><kbd>W</kbd></button>
         <button class="sbtn wl ${wl ? 'on' : ''}" data-sa="wl">${ic('clock')}<span>Watchlist</span><kbd>Q</kbd></button>
+        <button class="sbtn wa ${isWatching(a.id) ? 'on' : ''}" data-sa="wa">${ic('play')}<span>Watching</span><kbd>C</kbd></button>
         <button class="sbtn l ${s.liked ? 'on' : ''}" data-sa="l">${ic('heart')}<span>Like</span><kbd>L</kbd></button>
         <button class="sbtn" data-sa="open">Details<kbd>Enter</kbd></button>
       </div>
@@ -2201,6 +2338,7 @@ document.addEventListener('keydown', ev => {
   else if (l === 'f') spToggleFull();
   else if (l === 'w') spAct('w');
   else if (l === 'q') spAct('wl');
+  else if (l === 'c') spAct('wa');
   else if (l === 'l') spAct('l');
   else if (/^[1-5]$/.test(k)) spAct('rate', +k * 2);
   else if (k === '0') { const a = SP.list[SP.i]; if (a && st(a.id).rating) spAct('rate', st(a.id).rating); }
@@ -2239,9 +2377,11 @@ function buildPublicProfile() {
   const watched = Object.entries(d.status).filter(([, s]) => s.watched).map(([id, s]) => { add(id); return [+id, s.rating || 0, s.liked ? 1 : 0, s.ts || 0]; });
   let diary = [...d.entries].sort(byDateDesc).slice(0, 300).map(e => { add(e.animeId); return { a: e.animeId, d: e.date, r: e.rating || 0, l: e.liked ? 1 : 0, rw: e.rewatch ? 1 : 0, rv: e.review || '', sp: e.spoiler ? 1 : 0 }; });
   const watchlist = d.watchlist.map(w => { add(w.id); return w.id; });
+  const wlp = Object.fromEntries(d.watchlist.filter(w => w.prio && w.prio !== 2).map(w => [w.id, w.prio]));
+  const watching = d.watching.map(w => { add(w.id); return [w.id, w.ep || 0, w.started || 0, w.updated || 0]; });
   const favorites = d.favorites.filter(Boolean); favorites.forEach(add);
   const lists = d.lists.map(l => { l.items.forEach(add); return { n: l.name, d: l.desc || '', rk: l.ranked ? 1 : 0, it: l.items }; });
-  const p = { app: 'kansho', v: 1, name: d.profile.name || 'Anonymous', bio: d.profile.bio || '', updated: Date.now(), watched, diary, watchlist, favorites, lists, anime };
+  const p = { app: 'kansho', v: 1, name: d.profile.name || 'Anonymous', bio: d.profile.bio || '', updated: Date.now(), watched, diary, watchlist, wlp, watching, favorites, lists, anime };
   if (JSON.stringify(p).length > 900000) p.diary = diary.slice(0, 80);   // keep under the host's size limit
   return p;
 }
@@ -2296,6 +2436,8 @@ function fAnime(f, id) {
   if (x && !META.has(+id)) META.set(+id, a);
   return a;
 }
+const fPrio = (f, id) => +(f.snap?.wlp?.[id]) || 2;
+const fWatching = f => f.snap?.watching || [];
 function friendActivity(f, limit = 60) {
   const s = f.snap; if (!s) return [];
   const inDiary = new Set((s.diary || []).map(e => e.a));
@@ -2304,6 +2446,7 @@ function friendActivity(f, limit = 60) {
   (s.watched || []).forEach(([id, r, l, ts]) => { if (!inDiary.has(id) && ts) (days[tsDate(ts)] ||= []).push({ f, id, t: ts, r, l }); });
   // lots marked on the same day (an import, a catch-up session) become one row
   Object.values(days).forEach(list => { if (list.length < 4) ev.push(...list); else { list.sort((a, b) => b.t - a.t); ev.push({ f, bulk: list, t: list[0].t }); } });
+  fWatching(f).forEach(([id, ep, started]) => { if (started) ev.push({ f, id, t: started, start: true, ep }); });
   return ev.sort((a, b) => b.t - a.t).slice(0, limit);
 }
 function tasteMatch(f) {
@@ -2313,6 +2456,10 @@ function tasteMatch(f) {
   return { common, match: pairs.length >= 3 ? Math.round(100 - pairs.reduce((s, x) => s + x, 0) / pairs.length * 10) : null, rated: pairs.length };
 }
 const feedRow = e => {
+  if (e.start) { const a = fAnime(e.f, e.id), w = fWatching(e.f).find(x => x[0] === e.id);
+    return `<div class="fe">${avatar(e.f.name, e.f.code, 'sm')}<a href="#/anime/${a.id}">${thumb(a)}</a><div>
+    <div class="who"><a href="#/friend/${e.f.code}">${esc(e.f.name)}</a> started watching <a href="#/anime/${a.id}"><b>${esc(title(a))}</b></a>${a.year ? ` <span class="muted">${a.year}</span>` : ''}</div>
+    <div class="when"><span class="wtag">${ICON.play}${w ? epText({ ep: w[1] }, a) : ''}</span><span>${ago(e.t)}</span></div></div></div>`; }
   if (e.bulk) return `<div class="fe">${avatar(e.f.name, e.f.code, 'sm')}<span></span><div>
     <div class="who"><a href="#/friend/${e.f.code}">${esc(e.f.name)}</a> marked <b>${e.bulk.length} anime</b> as watched</div>
     <div class="when"><span>${ago(e.t)}</span></div>
@@ -2340,7 +2487,7 @@ async function viewFriends() {
         <div class="fadd"><input type="text" id="addCode" placeholder="Friend code" autocomplete="off" spellcheck="false"><button class="btn pri" id="addBtn">${ic('plus')} Add</button></div></div>
     </div>
     ${fr.length ? sec(`Friends · ${fr.length}`, `<div class="flist">${fr.map(f => { const s = f.snap, tm = s ? tasteMatch(f) : null;
-        return `<a class="fpc" href="#/friend/${f.code}">${avatar(f.name, f.code)}<div><b>${esc(f.name || 'Friend')}</b>${s ? `<span>${s.watched.length} anime · ${(s.watchlist || []).length} on watchlist</span><span>${tm.common} in common${tm.match != null ? ` · ${tm.match}% match` : ''}</span>` : ''}${f.error ? `<span class="err2">${esc(f.error)}</span>` : s ? '' : '<span>Loading…</span>'}</div></a>`; }).join('')}</div>`, '#', 'Refresh') : ''}
+        return `<a class="fpc" href="#/friend/${f.code}">${avatar(f.name, f.code)}<div><b>${esc(f.name || 'Friend')}</b>${s ? `<span>${s.watched.length} anime · ${fWatching(f).length} watching · ${(s.watchlist || []).length} on watchlist</span><span>${tm.common} in common${tm.match != null ? ` · ${tm.match}% match` : ''}</span>` : ''}${f.error ? `<span class="err2">${esc(f.error)}</span>` : s ? '' : '<span>Loading…</span>'}</div></a>`; }).join('')}</div>`, '#', 'Refresh') : ''}
     ${fr.length ? sec('New from friends', feed.length ? `<div class="feed">${feed.map(feedRow).join('')}</div>` : '<p class="muted">Nothing logged by your friends yet.</p>')
       : '<div class="empty">No friends yet. Give a friend the Kanshō app, then add each other’s codes above.</div>'}`;
     const $ = s => V.querySelector(s);
@@ -2386,7 +2533,11 @@ async function viewFriend(code) {
     const watched = [...s.watched].sort((a, b) => (b[3] || 0) - (a[3] || 0));
     const recs = s.watched.filter(([id, r]) => r >= 8 && !mine[id]?.watched).sort((a, b) => b[1] - a[1]).slice(0, 12);
     const show = f.showAll ? watched : watched.slice(0, 36);
-    const bothWL = (s.watchlist || []).filter(id => inWL(id));
+    const bothWL = (s.watchlist || []).filter(id => inWL(id)).sort((x, y) => (prioOf(y) + fPrio(f, y)) - (prioOf(x) + fPrio(f, x)));
+    const theirWL = [...(s.watchlist || [])].sort((x, y) => fPrio(f, y) - fPrio(f, x));
+    const fw = [...fWatching(f)].sort((x, y) => (y[3] || 0) - (x[3] || 0));
+    const wcard = ([id, ep]) => { const a = fAnime(f, id); return posterCard(a, { meta: false, caption: `${pbar({ ep }, a)}<span class="ct">${esc(title(a))}</span><span class="ce">${epText({ ep }, a)}</span>` }); };
+    const bothCap = id => `<span class="ct">${esc(title(fAnime(f, id)))}</span><span class="dual"><i>You</i>${prioPill(id, prioOf(id), false)}</span><span class="dual"><i>${esc(s.name)}</i>${prioPill(id, fPrio(f, id), false)}</span>`;
     V.innerHTML = `
       <div class="prof">${avatar(s.name, f.code, 'lg')}<div><h1 class="pt">${esc(s.name)}</h1>${s.bio ? `<p>${esc(s.bio)}</p>` : ''}<p>Updated ${ago(s.updated)}${f.error ? ` · <span style="color:#f3b9c4">${esc(f.error)}</span>` : ''}</p></div>
         <div style="margin-left:auto;display:flex;gap:10px"><button class="btn" id="frRefresh">Refresh</button><button class="btn danger" id="frRemove">${ic('trash')} Remove</button></div></div>
@@ -2397,15 +2548,17 @@ async function viewFriend(code) {
         <button class="stat clk" data-pop="rated"><b>${avg}</b><span>Avg rating</span></button>
         <button class="stat clk" data-pop="common"><b>${tm.common}</b><span>In common</span></button>
         <button class="stat clk" data-pop="match"><b>${tm.match != null ? tm.match + '%' : '–'}</b><span>Taste match</span></button>
+        <button class="stat clk" data-pop="watching"><b>${fw.length}</b><span>Watching</span></button>
         <button class="stat clk" data-pop="bothwl"><b>${bothWL.length}</b><span>Both want to watch</span></button>
       </div>
       ${s.favorites?.length ? sec('Favourite anime', `<div class="favs">${s.favorites.map(id => posterCard(fAnime(f, id), { meta: false })).join('')}</div>`) : ''}
-      ${(s.diary || []).length ? sec('Recent activity', `<div class="feed">${friendActivity(f, 12).map(feedRow).join('')}</div>`) : ''}
+      ${fw.length ? sec(`${esc(s.name)} is watching · ${fw.length}`, `<div class="grid">${fw.map(wcard).join('')}</div>`) : ''}
+      ${(s.diary || []).length || fw.length ? sec('Recent activity', `<div class="feed">${friendActivity(f, 12).map(feedRow).join('')}</div>`) : ''}
       ${recs.length ? sec(`Loved by ${esc(s.name)}, not seen by you`, `<div class="grid">${recs.map(([id, r, l]) => posterCard(fAnime(f, id), { entry: { rating: r, liked: l } })).join('')}</div>`) : ''}
-      ${sec(`You both want to watch · ${bothWL.length}`, bothWL.length ? `<div class="grid">${bothWL.map(id => posterCard(fAnime(f, id), { meta: false, caption: esc(title(fAnime(f, id))) })).join('')}</div>`
+      ${sec(`You both want to watch · ${bothWL.length}`, bothWL.length ? `<div class="grid">${bothWL.map(id => posterCard(fAnime(f, id), { meta: false, caption: bothCap(id) })).join('')}</div>`
         : `<p class="muted">Nothing on both your watchlists yet${(s.watchlist || []).length ? ` — ${esc(s.name)} has ${s.watchlist.length} on theirs, see below` : ''}.</p>`)}
       ${sec(`Watched · ${s.watched.length}`, watched.length ? `<div class="grid">${show.map(([id, r, l]) => posterCard(fAnime(f, id), { entry: { rating: r, liked: l } })).join('')}</div>${watched.length > show.length ? `<p style="text-align:center;margin-top:18px"><button class="btn" id="frAll">Show all ${watched.length}</button></p>` : ''}` : '<p class="muted">Nothing yet.</p>')}
-      ${(s.watchlist || []).length ? sec(`Watchlist · ${s.watchlist.length}`, `<div class="grid">${s.watchlist.map(id => posterCard(fAnime(f, id), { meta: false })).join('')}</div>`) : ''}
+      ${theirWL.length ? sec(`Watchlist · ${theirWL.length}`, `<div class="grid">${theirWL.map(id => `<div class="pc wlc">${prioPill(id, fPrio(f, id), false)}${posterCard(fAnime(f, id), { meta: false })}</div>`).join('')}</div>`) : ''}
       ${(s.lists || []).map(l => sec(esc(l.n), `${l.d ? `<p class="ldesc" style="margin:0 0 14px">${esc(l.d)}</p>` : ''}<div class="grid">${l.it.map((id, i) => `<div class="pc">${l.rk ? `<span class="rank">${i + 1}</span>` : ''}${posterCard(fAnime(f, id), { meta: false })}</div>`).join('')}</div>`)).join('')}`;
     V.querySelector('#frRefresh').onclick = async () => { await fetchFriend(f, true); Store.save(); if (my === routeId) draw(); };
     V.querySelector('#frRemove').onclick = () => confirmBox(`Remove ${esc(s.name)} from your friends?`, 'Remove', () => { D().friends = D().friends.filter(x => x !== f); Store.save(); location.hash = '#/friends'; });
@@ -2452,9 +2605,14 @@ function openFriendPop(f, kind) {
         const band = d => d <= 1 ? 0 : d <= 3 ? 1 : 2, labels = ['You agree', 'Close enough', 'You disagree'];
         return { t: 'Taste match', h: head + (pairs.length ? groups(pairs.sort((a, b) => a.d - b.d), x => band(x.d), k => labels[k], x => card(x.w[0], `<span class="ct">${esc(title(fAnime(f, x.w[0])))}</span>${both(x.w[0], x.w[1])}`)) : '') };
       }
+      case 'watching': {
+        const fw = [...fWatching(f)].sort((x, y) => (y[3] || 0) - (x[3] || 0));
+        return { t: `${name} is watching · ${fw.length}`, h: fw.length ? grid(fw.map(([id, ep, started]) => { const a = fAnime(f, id); return card(id, `${pbar({ ep }, a)}<span class="ct">${esc(title(a))}</span><span class="dual">${epText({ ep }, a)} · since ${ago(started)}</span>${isWatching(id) ? `<span class="dual"><i>You</i>${epText(watchingOf(id), a)}</span>` : ''}`); }))
+          : `<p class="muted">${name} isn’t watching anything right now.</p>` };
+      }
       case 'bothwl': {
-        const ids = (s.watchlist || []).filter(id => inWL(id));
-        return { t: `You both want to watch · ${ids.length}`, h: ids.length ? `<p class="muted" style="margin:0 0 16px">On your watchlist <b>and</b> ${name}’s — pick one for your next watch together.</p>${grid(ids.map(id => card(id, `<span class="ct">${esc(title(fAnime(f, id)))}</span>`)))}`
+        const ids = (s.watchlist || []).filter(id => inWL(id)).sort((x, y) => (prioOf(y) + fPrio(f, y)) - (prioOf(x) + fPrio(f, x)));
+        return { t: `You both want to watch · ${ids.length}`, h: ids.length ? `<p class="muted" style="margin:0 0 16px">On your watchlist <b>and</b> ${name}’s, highest combined priority first — pick one for your next watch together.</p>${grid(ids.map(id => card(id, `<span class="ct">${esc(title(fAnime(f, id)))}</span><span class="dual"><i>You</i>${prioPill(id, prioOf(id), false)}</span><span class="dual"><i>${name}</i>${prioPill(id, fPrio(f, id), false)}</span>`)))}`
           : `<p class="muted">Nothing on both watchlists yet. ${name} has ${(s.watchlist || []).length} on theirs, you have ${D().watchlist.length}.</p>` };
       }
     }
@@ -2468,7 +2626,7 @@ function openFriendPop(f, kind) {
       const ss = m.querySelector('#popSort'); if (ss) { ss.value = sort; ss.onchange = () => { sort = ss.value; draw(); }; }
       if (kind === 'bothwl') {
         const ids = (s.watchlist || []).filter(id => inWL(id));
-        if (ids.length > 1) { const bt = document.createElement('button'); bt.className = 'btn pri'; bt.style.margin = '0 0 16px'; bt.innerHTML = `${ic('dice')} Pick one for us`; bt.onclick = () => { const id = ids[Math.floor(Math.random() * ids.length)]; toast('Tonight: ' + title(fAnime(f, id))); location.hash = '#/anime/' + id; }; m.querySelector('.popbody').prepend(bt); }
+        if (ids.length > 1) { const bt = document.createElement('button'); bt.className = 'btn pri'; bt.style.margin = '0 0 16px'; bt.innerHTML = `${ic('dice')} Pick one for us`; bt.onclick = () => { const bag = ids.flatMap(i => Array(prioOf(i) + fPrio(f, i)).fill(i)), id = bag[Math.floor(Math.random() * bag.length)]; toast('Tonight: ' + title(fAnime(f, id))); location.hash = '#/anime/' + id; }; m.querySelector('.popbody').prepend(bt); }
       }
     };
     draw();
@@ -2481,7 +2639,8 @@ function friendsOnAnime(id) {
   D().friends.forEach(f => { const s = f.snap; if (!s) return;
     const w = s.watched.find(x => x[0] === id), rv = (s.diary || []).find(e => e.a === id && e.rv);
     if (w) out.push(`<div class="fr">${avatar(f.name, f.code, 'sm')}<a href="#/friend/${f.code}">${esc(f.name)}</a>${w[1] ? `<span class="stars">${starText(w[1])}</span>` : '<span class="muted">watched</span>'}${w[2] ? `<span class="hl">${ICON.heart}</span>` : ''}${rv ? `<span class="muted" title="${esc(rv.rv)}">“${esc(rv.rv.slice(0, 70))}${rv.rv.length > 70 ? '…' : ''}”</span>` : ''}</div>`);
-    else if ((s.watchlist || []).includes(id)) out.push(`<div class="fr">${avatar(f.name, f.code, 'sm')}<a href="#/friend/${f.code}">${esc(f.name)}</a><span class="muted">wants to watch</span></div>`);
+    else if (fWatching(f).some(x => x[0] === id)) { const x = fWatching(f).find(y => y[0] === id); out.push(`<div class="fr">${avatar(f.name, f.code, 'sm')}<a href="#/friend/${f.code}">${esc(f.name)}</a><span class="wtag">${ICON.play}is watching · ${epText({ ep: x[1] }, getA(id))}</span></div>`); }
+    else if ((s.watchlist || []).includes(id)) out.push(`<div class="fr">${avatar(f.name, f.code, 'sm')}<a href="#/friend/${f.code}">${esc(f.name)}</a><span class="muted">wants to watch</span>${prioPill(id, fPrio(f, id), false)}</div>`);
   });
   return out.length ? `<div class="mine fmine"><h4>Friends</h4>${out.join('')}</div>` : '';
 }
@@ -2509,8 +2668,10 @@ function csvFiles() {
     { name: 'reviews.csv', label: 'Reviews', note: 'diary entries with a review', rows: entries.filter(e => e.review).map(e => [tsDate(e.created) || e.date, ...base(A(e.animeId)), e.rating ? e.rating / 2 : '', yn(e.rewatch), e.review, yn(e.spoiler), e.date]),
       head: ['Date', ...H, 'Rating', 'Rewatch', 'Review', 'Spoiler', 'Watched Date'] },
     { name: 'likes.csv', label: 'Likes', note: 'anime you liked', rows: watchedIds.filter(k => d.status[k].liked).map(k => [tsDate(d.status[k].ts), ...base(A(k))]), head: ['Date', ...H] },
-    { name: 'watchlist.csv', label: 'Watchlist', note: 'what you want to watch', rows: d.watchlist.map(w => { const a = A(w.id); return [tsDate(w.added), ...base(a), a.type || '', a.episodes || '']; }),
-      head: ['Date', ...H, 'Type', 'Episodes'] },
+    { name: 'watchlist.csv', label: 'Watchlist', note: 'what you want to watch, with priority', rows: d.watchlist.map(w => { const a = A(w.id); return [tsDate(w.added), ...base(a), PRIO[w.prio || 2][0], a.type || '', a.episodes || '']; }),
+      head: ['Date', ...H, 'Priority', 'Type', 'Episodes'] },
+    { name: 'watching.csv', label: 'Watching', note: 'started, not finished', rows: d.watching.map(w => { const a = A(w.id); return [tsDate(w.started), ...base(a), w.ep || 0, a.episodes || '', tsDate(w.updated)]; }),
+      head: ['Date', ...H, 'Episode', 'Episodes', 'Last Watched'] },
     { name: 'profile.csv', label: 'Profile', note: 'name, bio and favourites', rows: [[d.profile.name, d.profile.bio, d.favorites.filter(Boolean).map(id => A(id).title || id).join(', '), d.favorites.filter(Boolean).join(', ')]],
       head: ['Name', 'Bio', 'Favorite Anime', 'Favorite MAL IDs'] },
     ...d.lists.map(l => ({ name: `lists/${safeFile(l.name)}.csv`, label: `List: ${l.name}`, note: l.desc || 'custom list', list: true,
@@ -2545,6 +2706,7 @@ const COLS = {
   wdate: ['watched date', 'date watched', 'watcheddate', 'watched', 'my_finish_date', 'finish date', 'date de visionnage', 'vu le', 'date vu', 'terminé le', 'termine le'], date: ['date', 'added', 'date added', 'logged date', 'ajouté le', 'ajoute le', "date d'ajout"],
   liked: ['liked', 'like', 'favorite', 'favourite', 'aimé', 'aime', 'coup de cœur', 'coup de coeur', 'favori'], rewatch: ['rewatch', 'rewatched', 'revu', 'revisionnage'], review: ['review', 'comment', 'notes', 'my_comments', 'critique', 'avis', 'commentaire'], spoiler: ['spoiler', 'spoilers', 'contains spoilers', 'divulgâcheur'],
   status: ['status', 'my_status', 'list', 'statut', 'état', 'etat'], pos: ['position', 'rank', '#', 'rang'],
+  ep: ['episode', 'progress', 'episodes watched', 'my_watched_episodes', 'épisode', 'episode actuel', 'ep'], prio: ['priority', 'priorité', 'priorite', 'prio', 'my_priority'],
 };
 const col = (r, k) => { for (const c of COLS[k]) if (r[c] != null && r[c] !== '') return r[c]; return ''; };
 const truthy = v => /^(yes|y|true|1|x|✓|oui|liked|♥)$/i.test(String(v).trim());
@@ -2558,6 +2720,7 @@ function parseDateAny(v) {
 function guessKind(name, head) {
   const n = name.toLowerCase();
   if (/watchlist|plan.?to.?watch/.test(n)) return 'watchlist';
+  if (/watching|en.?cours|in.?progress/.test(n)) return 'watching';
   if (/diary|review/.test(n)) return 'diary';
   if (/like/.test(n)) return 'likes';
   if (/rating|watched|completed/.test(n)) return 'watched';
@@ -2567,7 +2730,7 @@ function guessKind(name, head) {
   if (COLS.status.some(c => head.includes(c))) return 'auto';
   return 'watched';
 }
-const KIND_LABELS = [['diary', 'Diary entries'], ['watched', 'Watched'], ['likes', 'Likes (watched + ♥)'], ['watchlist', 'Watchlist'], ['list', 'A custom list'], ['auto', 'Use each row’s Status column'], ['skip', 'Skip this file']];
+const KIND_LABELS = [['diary', 'Diary entries'], ['watched', 'Watched'], ['likes', 'Likes (watched + ♥)'], ['watchlist', 'Watchlist'], ['watching', 'Watching (started)'], ['list', 'A custom list'], ['auto', 'Use each row’s Status column'], ['skip', 'Skip this file']];
 const normT = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9぀-ヿ一-鿿]+/g, '');
 
 async function matchTitle(name, year) {
@@ -2624,11 +2787,20 @@ async function runImport(files, ui) {
     rating = Math.max(0, Math.min(10, rating));
     const wdate = parseDateAny(col(r, 'wdate')) || parseDateAny(col(r, 'date')), liked = truthy(col(r, 'liked'));
     let kind = x.kind;
-    if (kind === 'auto') { const s = col(r, 'status').toLowerCase(); kind = /plan|watchlist|want|à voir|a voir|envie/.test(s) ? 'watchlist' : /complete|watched|finished|vu|terminé|termine|fini/.test(s) ? (wdate ? 'diary' : 'watched') : 'skip'; }
+    if (kind === 'auto') { const s = col(r, 'status').toLowerCase(); kind = /plan|watchlist|want|à voir|a voir|envie/.test(s) ? 'watchlist' : /watching|en cours|regarde|in progress/.test(s) ? 'watching' : /complete|watched|finished|vu|terminé|termine|fini/.test(s) ? (wdate ? 'diary' : 'watched') : 'skip'; }
     if (kind === 'skip') { res.skipped++; continue; }
     if (kind === 'list') { if (!x.list.items.includes(id)) x.list.items.push(id); continue; }
+    const pv = String(col(r, 'prio')).toLowerCase().trim();
+    const prio = /^(3|high|haute|must|élevée|elevee|urgent|!!!)/.test(pv) ? 3 : /^(1|low|basse|faible|someday|plus tard|!)$/.test(pv) || /^(low|basse|someday)/.test(pv) ? 1 : pv ? 2 : 0;
     if (kind === 'watchlist') {
-      if (!st(id).watched && !inWL(id)) { d.watchlist.push({ id, added: wdate ? Date.parse(wdate + 'T12:00:00') : Date.now() }); res.watchlist++; } else res.skipped++;
+      if (!st(id).watched && !inWL(id) && !isWatching(id)) { d.watchlist.push({ id, added: wdate ? Date.parse(wdate + 'T12:00:00') : Date.now(), ...(prio ? { prio } : {}) }); res.watchlist++; }
+      else if (inWL(id) && prio) { wlItem(id).prio = prio; res.skipped++; } else res.skipped++;
+      continue;
+    }
+    if (kind === 'watching') {
+      const ep = parseInt(col(r, 'ep')) || 0, w = watchingOf(id);
+      if (w) { if (ep > (w.ep || 0)) w.ep = ep; res.skipped++; }
+      else { d.watching.push({ id, started: wdate ? Date.parse(wdate + 'T12:00:00') : Date.now(), ep, updated: Date.now() }); removeWL(id); res.watching = (res.watching || 0) + 1; }
       continue;
     }
     const s = st(id), wasWatched = s.watched;
@@ -2642,6 +2814,7 @@ async function runImport(files, ui) {
     }
     if (kind === 'likes') res.likes++;
     if (!wasWatched) res.watched++;
+    if (isWatching(id) && kind !== 'likes') d.watching = d.watching.filter(w => w.id !== id);
   }
   files.forEach(f => { if (f.listObj?.items.length) { d.lists.push(f.listObj); res.lists++; } });
   Store.save();
@@ -2687,7 +2860,7 @@ function viewProfileData() {
       const ui = (msg, frac) => { stat.querySelector('#iMsg').textContent = msg; stat.querySelector('.iprog i').style.width = Math.round(frac * 100) + '%'; };
       try {
         const r = await runImport(pending, ui); ui('Done', 1);
-        stat.innerHTML += `<div class="ires"><b>Imported:</b> ${r.watched} newly watched · ${r.diary} diary entries · ${r.watchlist} added to watchlist${r.likes ? ` · ${r.likes} likes` : ''}${r.lists ? ` · ${r.lists} list${r.lists > 1 ? 's' : ''}` : ''}${r.skipped ? ` · ${r.skipped} skipped (already there)` : ''}
+        stat.innerHTML += `<div class="ires"><b>Imported:</b> ${r.watched} newly watched · ${r.diary} diary entries · ${r.watchlist} added to watchlist${r.watching ? ` · ${r.watching} watching` : ''}${r.likes ? ` · ${r.likes} likes` : ''}${r.lists ? ` · ${r.lists} list${r.lists > 1 ? 's' : ''}` : ''}${r.skipped ? ` · ${r.skipped} skipped (already there)` : ''}
           ${r.searchFailed ? `<div style="margin-top:8px;color:#f3b9c4">Some titles couldn’t be looked up (${esc(r.searchFailed)}). Import the same file again later — nothing gets duplicated.</div>` : ''}
           ${r.unmatched.length ? `<div style="margin-top:8px;color:#f3b9c4">${r.unmatched.length} couldn’t be matched to an anime:</div><ul>${r.unmatched.slice(0, 200).map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}</div>`;
         pending = []; setTimeout(backfill, 500);
@@ -2720,8 +2893,9 @@ const ACTIONS = {
     if (st(id).watched && D().entries.some(e => e.animeId === id)) { toast('This has diary entries — delete those first to un-watch it', true, 4000); return; }
     ensure(a); const on = !st(id).watched;
     setSt(id, on ? { watched: true, ts: Date.now() } : { watched: false, rating: 0, liked: false });
-    if (on) { removeWL(id); Store.save(); toast(`Marked ${title(a)} as watched`); }
+    if (on) { removeWL(id); if (isWatching(id)) stopWatching(id); Store.save(); toast(`Marked ${title(a)} as watched`); }
   },
+  wa(id, a) { ensure(a); toggleWatching(id); },
   l(id, a) { ensure(a); const on = !st(id).liked; setSt(id, on ? { liked: true, watched: true, ts: st(id).ts || Date.now() } : { liked: false }); if (on) { removeWL(id); Store.save(); } },
   wl(id, a) { ensure(a); toggleWL(id); },
   edit(id, a, el) { const e = D().entries.find(x => x.id === el.dataset.eid); if (e) openLog(D().anime[e.animeId] || { id: e.animeId }, e); return true; },
@@ -2729,6 +2903,8 @@ const ACTIONS = {
 document.addEventListener('click', ev => {
   const sp = ev.target.closest('.spoil'); if (sp) { sp.classList.remove('spoil'); ev.preventDefault(); return; }
   const qs = ev.target.closest('.qstars'); if (qs) { const v = qsVal(ev); if (v) rateQuick(+qs.dataset.id, v); return; }
+  const pr = ev.target.closest('[data-prio]');
+  if (pr && +pr.dataset.prio) { ev.preventDefault(); ev.stopPropagation(); const id = +pr.dataset.prio, n = { 3: 2, 2: 1, 1: 3 }[prioOf(id)]; setPrio(id, n); toast(`Priority: ${PRIO[n][0]}`, false, 1200); refresh(); return; }
   const spb = ev.target.closest('[data-spot]'); if (spb) { ev.preventDefault(); spotFromRow(spb.closest('.ctrack').id.slice(3), spb.dataset.spot); return; }
   const ext = ev.target.closest('a[target=_blank]'); if (ext && APP.native) { ev.preventDefault(); fetch('/api/open?u=' + encodeURIComponent(ext.href), { method: 'POST' }); return; }
   const b = ev.target.closest('[data-act]'); if (!b) return;
@@ -2758,7 +2934,7 @@ document.addEventListener('keydown', ev => {
   // Discover shortcuts act on the poster under the mouse
   if (!hoverTile || !document.body.contains(hoverTile)) return;
   const id = +hoverTile.dataset.aid, a = getA(id), k = ev.key.toLowerCase();
-  if (k === 'w' || k === 'l' || k === 'q') { ACTIONS[{ w: 'w', l: 'l', q: 'wl' }[k]](id, a); refresh(); }
+  if (k === 'w' || k === 'l' || k === 'q' || k === 'c') { ACTIONS[{ w: 'w', l: 'l', q: 'wl', c: 'wa' }[k]](id, a); refresh(); }
   else if (/^[1-5]$/.test(k)) rateQuick(id, +k * 2);
   else if (k === '0') { if (st(id).rating) rateQuick(id, st(id).rating); }
   else if (k === 'f' || k === ' ' || k === 's') { const tr = hoverTile.closest('.ctrack'); if (tr) spotFromRow(tr.id.slice(3), id); }
